@@ -6,8 +6,13 @@ import type { ProviderId } from "@/ai/providers/types";
  * setup wizard. Resolves on success; throws a mapped ApiError (invalid key, rate
  * limit, provider down) that the UI already knows how to render.
  */
-export async function testKey(p: ProviderId, apiKey: string, model: string): Promise<void> {
-  const provider = makeProvider(p, apiKey, model);
+export async function testKey(
+  p: ProviderId,
+  apiKey: string,
+  model: string,
+  baseUrl?: string,
+): Promise<void> {
+  const provider = makeProvider(p, apiKey, model, baseUrl);
   await provider.chat({
     messages: [{ role: "user", content: "Reply with the single word OK." }],
     maxTokens: 5,

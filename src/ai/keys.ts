@@ -20,9 +20,23 @@ export interface ModelOption {
 export const PROVIDER_LABELS: Record<ProviderId, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
+  gemini: "Google Gemini",
+  groq: "Groq",
+  ollama: "Ollama",
+  azure: "Azure OpenAI",
 };
 
-/** A small curated list per provider. New models are a one-line add here. */
+/** Providers that run against a user-supplied endpoint (need the base-URL
+ *  field): Ollama's local server and an Azure deployment. */
+export const PROVIDERS_NEEDING_BASE_URL: ProviderId[] = ["ollama", "azure"];
+
+/** Providers that do not require an API key (Ollama runs locally). */
+export const KEYLESS_PROVIDERS: ProviderId[] = ["ollama"];
+
+const KNOWN_PROVIDERS: ProviderId[] = ["openai", "anthropic", "gemini", "groq", "ollama", "azure"];
+
+/** A small curated list per provider. New models are a one-line add here. Azure
+ *  lists nothing because the "model" is the user's own deployment name. */
 export const MODEL_OPTIONS: Record<ProviderId, ModelOption[]> = {
   openai: [
     { id: "gpt-5.4-mini", label: "GPT-5.4 mini (fast, low cost)" },
@@ -34,11 +48,31 @@ export const MODEL_OPTIONS: Record<ProviderId, ModelOption[]> = {
     { id: "claude-opus-4-8", label: "Claude Opus 4.8 (highest quality)" },
     { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5 (fast)" },
   ],
+  gemini: [
+    { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash (fast)" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro (highest quality)" },
+  ],
+  groq: [
+    { id: "llama-3.3-70b-versatile", label: "Llama 3.3 70B" },
+    { id: "llama-3.1-8b-instant", label: "Llama 3.1 8B (fast)" },
+    { id: "qwen-2.5-32b", label: "Qwen 2.5 32B" },
+  ],
+  ollama: [
+    { id: "llama3.1", label: "Llama 3.1" },
+    { id: "qwen2.5", label: "Qwen 2.5" },
+    { id: "mistral", label: "Mistral" },
+  ],
+  azure: [],
 };
 
 const DEFAULT_MODEL: Record<ProviderId, string> = {
   openai: "gpt-5.4-mini",
   anthropic: "claude-sonnet-5",
+  gemini: "gemini-2.5-flash",
+  groq: "llama-3.3-70b-versatile",
+  ollama: "llama3.1",
+  // Azure's model is the deployment name, which is per-account; no default.
+  azure: "",
 };
 
 /** Partition the storage key per add-in instance where Office supports it. */
@@ -95,7 +129,8 @@ function write(suffix: string, value: string | null): boolean {
 }
 
 export function getActiveProvider(): ProviderId {
-  return read("provider") === "anthropic" ? "anthropic" : "openai";
+  const saved = read("provider");
+  return saved && (KNOWN_PROVIDERS as string[]).includes(saved) ? (saved as ProviderId) : "openai";
 }
 
 export function setActiveProvider(p: ProviderId): void {
@@ -116,6 +151,14 @@ export function removeKey(p: ProviderId): void {
   write(`${p}.key`, null);
 }
 
+/** Clear every provider's key and custom base URL (sign-out / leave BYOK). */
+export function clearAllProviderKeys(): void {
+  for (const p of KNOWN_PROVIDERS) {
+    write(`${p}.key`, null);
+    write(`${p}.baseUrl`, null);
+  }
+}
+
 export function getModel(p: ProviderId): string {
   return read(`${p}.model`) || DEFAULT_MODEL[p];
 }
@@ -124,9 +167,22 @@ export function setModel(p: ProviderId, model: string): void {
   write(`${p}.model`, model);
 }
 
-/** True once the active provider has a key. Unlocks the AI features and the app. */
+/** Optional custom endpoint base URL (Ollama server / Azure deployment). Empty
+ *  string when unset so callers can fall back to a per-provider default. */
+export function getBaseUrl(p: ProviderId): string {
+  return read(`${p}.baseUrl`) || "";
+}
+
+export function setBaseUrl(p: ProviderId, url: string): void {
+  write(`${p}.baseUrl`, url.trim() || null);
+}
+
+/** True once the active provider is usable. Unlocks the AI features and the app.
+ *  Ollama runs locally with no key, so it counts as configured on its own. */
 export function isConfigured(): boolean {
-  return getKey(getActiveProvider()) !== null;
+  const p = getActiveProvider();
+  if ((KEYLESS_PROVIDERS as string[]).includes(p)) return true;
+  return getKey(p) !== null;
 }
 
 // --- CourtListener (optional BYO case-law token) ----------------------------

@@ -1,6 +1,6 @@
 import { ApiError } from "@/api/errors";
 import { readSse } from "./sse";
-import type { ChatAttachment, ChatRequest, LlmProvider } from "./types";
+import type { ChatAttachment, ChatRequest, LlmProvider, ProviderId } from "./types";
 
 /**
  * A single part of a multimodal Chat Completions message. Plain text messages
@@ -36,19 +36,19 @@ function partFor(a: ChatAttachment): OpenAiPart | null {
  */
 const ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
-function mapError(status: number, body: string): ApiError {
-  if (status === 401)
+function mapError(brand: string, status: number, body: string): ApiError {
+  if (status === 401 || status === 403)
     return new ApiError(
       "unauthorized",
       401,
-      "Your OpenAI API key was rejected. Check it in Settings.",
+      `Your ${brand} API key was rejected. Check it in Settings.`,
       "INVALID_KEY",
     );
   if (status === 429)
-    return new ApiError("rate_limited", 429, "OpenAI rate-limited this request. Wait a moment and try again.");
+    return new ApiError("rate_limited", 429, `${brand} rate-limited this request. Wait a moment and try again.`);
   if (status >= 500)
-    return new ApiError("server", status, "OpenAI is unavailable right now. Please try again.");
-  return new ApiError("invalid", status, body.slice(0, 300) || "OpenAI rejected the request.");
+    return new ApiError("server", status, `${brand} is unavailable right now. Please try again.`);
+  return new ApiError("invalid", status, body.slice(0, 300) || `${brand} rejected the request.`);
 }
 
 function messagesFor(req: ChatRequest): { role: string; content: string | OpenAiPart[] }[] {
@@ -70,28 +70,66 @@ function messagesFor(req: ChatRequest): { role: string; content: string | OpenAi
   return out;
 }
 
-export function makeOpenAI(apiKey: string, model: string): LlmProvider {
+/**
+ * Config for one OpenAI-compatible provider. The request/response wire format is
+ * identical across OpenAI, Groq, Google Gemini's compat endpoint, Ollama, and
+ * Azure OpenAI; only the endpoint, the auth header, and the brand name (for
+ * error copy) differ.
+ */
+export interface ChatCompletionsConfig {
+  id: ProviderId;
+  /** User-facing name for error messages, e.g. "Groq", "Ollama". */
+  brand: string;
+  /** Full chat/completions URL. */
+  endpoint: string;
+  /** API key. May be empty for a local Ollama server (no auth). */
+  apiKey: string;
+  model: string;
+  /** How the key is presented. Bearer for OpenAI/Groq/Gemini/Ollama; Azure uses
+   *  an `api-key` header. Default "bearer". */
+  auth?: "bearer" | "api-key";
+}
+
+/**
+ * Build a provider that talks the OpenAI Chat Completions wire format at an
+ * arbitrary endpoint. This is the shared engine behind OpenAI, Groq, Gemini,
+ * Ollama, and Azure OpenAI. Browser-direct (BYOK): the key is sent only to the
+ * endpoint the user configured.
+ */
+export function makeChatCompletions(cfg: ChatCompletionsConfig): LlmProvider {
+  const { id, brand, endpoint, apiKey, model, auth = "bearer" } = cfg;
+
+  function headers(): Record<string, string> {
+    const h: Record<string, string> = { "Content-Type": "application/json" };
+    // A local Ollama server needs no key; only attach auth when one is present.
+    if (apiKey) {
+      if (auth === "api-key") h["api-key"] = apiKey;
+      else h.Authorization = `Bearer ${apiKey}`;
+    }
+    return h;
+  }
+
   async function post(req: ChatRequest, stream: boolean): Promise<Response> {
     const body: Record<string, unknown> = { model, messages: messagesFor(req), stream };
     if (req.json) body.response_format = { type: "json_object" };
     let res: Response;
     try {
-      res = await fetch(ENDPOINT, {
+      res = await fetch(endpoint, {
         method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        headers: headers(),
         body: JSON.stringify(body),
         signal: req.signal,
       });
     } catch (e) {
       if ((e as Error).name === "AbortError") throw e;
-      throw new ApiError("network", 0, "Cannot reach OpenAI. Check your connection.");
+      throw new ApiError("network", 0, `Cannot reach ${brand}. Check your connection${id === "ollama" ? " and that the Ollama server is running" : ""}.`);
     }
-    if (!res.ok) throw mapError(res.status, await res.text().catch(() => ""));
+    if (!res.ok) throw mapError(brand, res.status, await res.text().catch(() => ""));
     return res;
   }
 
   return {
-    id: "openai",
+    id,
     async chat(req) {
       const res = await post(req, false);
       const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
@@ -99,7 +137,7 @@ export function makeOpenAI(apiKey: string, model: string): LlmProvider {
     },
     async stream(req, onDelta) {
       const res = await post(req, true);
-      if (!res.body) throw new ApiError("server", res.status, "OpenAI returned an empty stream.");
+      if (!res.body) throw new ApiError("server", res.status, `${brand} returned an empty stream.`);
       let full = "";
       await readSse(res.body, (data) => {
         if (data === "[DONE]") return;
@@ -117,4 +155,9 @@ export function makeOpenAI(apiKey: string, model: string): LlmProvider {
       return { text: full };
     },
   };
+}
+
+/** OpenAI itself: the compat engine pointed at api.openai.com. */
+export function makeOpenAI(apiKey: string, model: string): LlmProvider {
+  return makeChatCompletions({ id: "openai", brand: "OpenAI", endpoint: ENDPOINT, apiKey, model });
 }

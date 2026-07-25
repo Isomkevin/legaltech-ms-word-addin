@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Button, Field } from "@/ui/primitives";
 import {
+  KEYLESS_PROVIDERS,
   MODEL_OPTIONS,
+  PROVIDERS_NEEDING_BASE_URL,
   PROVIDER_LABELS,
   getActiveProvider,
+  getBaseUrl,
   getKey,
   getModel,
   isConfigured,
   setActiveProvider,
+  setBaseUrl,
   setKey,
   setModel,
   type ProviderId,
@@ -26,18 +30,38 @@ type Status =
   | { kind: "ok" }
   | { kind: "error"; message: string };
 
-const PROVIDERS: ProviderId[] = ["openai", "anthropic"];
+const PROVIDERS: ProviderId[] = ["openai", "anthropic", "gemini", "groq", "ollama", "azure"];
 
 /**
- * Full provider wordmark (mark + name) shown as the option itself, so the picker
- * needs no separate text label. The logos are black on transparent, so each
- * option keeps a light background in both states and shows selection with a
- * brand ring rather than a dark fill (which would hide the black mark).
+ * Provider logo shown as the option itself, so the picker needs no separate text
+ * label (the accessible name is the alt text). Each option keeps a light
+ * background in both states and shows selection with a brand ring rather than a
+ * dark fill (which would hide a dark mark).
  */
 const PROVIDER_LOGO: Record<ProviderId, { src: string; alt: string }> = {
   openai: { src: "/assets/openai.webp", alt: "OpenAI" },
   anthropic: { src: "/assets/claude.png", alt: "Claude" },
+  gemini: { src: "/assets/googlegemini.svg", alt: "Google Gemini" },
+  groq: { src: "/assets/groq.svg", alt: "Groq" },
+  ollama: { src: "/assets/ollama.svg", alt: "Ollama" },
+  azure: { src: "/assets/azure.svg", alt: "Azure OpenAI" },
 };
+
+function needsBaseUrl(p: ProviderId): boolean {
+  return PROVIDERS_NEEDING_BASE_URL.includes(p);
+}
+
+function needsKey(p: ProviderId): boolean {
+  return !KEYLESS_PROVIDERS.includes(p);
+}
+
+/** Placeholder for the base-URL field, per provider. */
+function baseUrlPlaceholder(p: ProviderId): string {
+  if (p === "ollama") return "http://localhost:11434/v1";
+  if (p === "azure")
+    return "https://<resource>.openai.azure.com/openai/deployments/<name>/chat/completions?api-version=2024-10-01";
+  return "";
+}
 
 /** Sentinel dropdown value that reveals the free-text model id field. */
 const CUSTOM = "__custom__";
@@ -55,6 +79,7 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
     () => !isKnownModel(getActiveProvider(), getModel(getActiveProvider())),
   );
   const [key, setKeyValue] = useState<string>(getKey(getActiveProvider()) ?? "");
+  const [baseUrl, setBaseUrlValue] = useState<string>(getBaseUrl(getActiveProvider()));
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
   function switchProvider(p: ProviderId) {
@@ -63,6 +88,7 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
     setModelValue(nextModel);
     setCustom(!isKnownModel(p, nextModel));
     setKeyValue(getKey(p) ?? "");
+    setBaseUrlValue(getBaseUrl(p));
     setStatus({ kind: "idle" });
   }
 
@@ -77,9 +103,18 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
     setStatus({ kind: "idle" });
   }
 
+  const keyRequired = needsKey(provider);
+  const baseUrlRequired = needsBaseUrl(provider);
+  // Ollama needs no key; Azure has no default endpoint so its base URL is
+  // mandatory. Everything else just needs a key + model.
+  const canSubmit =
+    !!model.trim() &&
+    (!keyRequired || !!key.trim()) &&
+    (provider !== "azure" || !!baseUrl.trim());
+
   async function runTest() {
     const k = key.trim();
-    if (!k) {
+    if (keyRequired && !k) {
       setStatus({ kind: "error", message: "Enter your API key first." });
       return;
     }
@@ -87,9 +122,13 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
       setStatus({ kind: "error", message: "Enter a model id first." });
       return;
     }
+    if (provider === "azure" && !baseUrl.trim()) {
+      setStatus({ kind: "error", message: "Enter your Azure endpoint URL first." });
+      return;
+    }
     setStatus({ kind: "testing" });
     try {
-      await testKey(provider, k, model);
+      await testKey(provider, k, model, baseUrl.trim());
       setStatus({ kind: "ok" });
     } catch (e) {
       setStatus({ kind: "error", message: errorMessage(e) });
@@ -99,14 +138,15 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
   function save() {
     setKey(provider, key.trim());
     setModel(provider, model.trim());
+    if (baseUrlRequired) setBaseUrl(provider, baseUrl.trim());
     setActiveProvider(provider);
-    // Never report success blind: if the key did not actually take (storage
+    // Never report success blind: if the config did not actually take (storage
     // blocked AND the session fallback somehow empty), advancing would drop the
     // user on a screen that immediately bounces back with no explanation.
     if (!isConfigured()) {
       setStatus({
         kind: "error",
-        message: "Could not save the key on this device. Check that browser storage is not blocked.",
+        message: "Could not save on this device. Check that browser storage is not blocked.",
       });
       return;
     }
@@ -116,7 +156,7 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
   return (
     <div className="stack" style={{ gap: 12 }}>
       <Field label="AI provider">
-        <div className="row" style={{ gap: 8 }}>
+        <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
           {PROVIDERS.map((p) => {
             const logo = PROVIDER_LOGO[p];
             const on = p === provider;
@@ -126,14 +166,16 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
                 type="button"
                 aria-pressed={on}
                 aria-label={logo.alt}
+                title={PROVIDER_LABELS[p]}
                 onClick={() => switchProvider(p)}
                 style={{
-                  flex: "1 1 0",
+                  flex: "1 1 28%",
+                  minWidth: 64,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  minHeight: 44,
-                  padding: "8px 12px",
+                  minHeight: 42,
+                  padding: "8px 10px",
                   background: "var(--surface)",
                   border: `1px solid ${on ? "var(--brand)" : "var(--control-border)"}`,
                   borderRadius: "var(--radius-sm)",
@@ -181,25 +223,54 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
         )}
       </Field>
 
-      <Field label={`${PROVIDER_LABELS[provider]} API key`}>
-        <input
-          type="password"
-          value={key}
-          autoComplete="off"
-          placeholder="Paste your key"
-          onChange={(e) => {
-            setKeyValue(e.target.value);
-            setStatus({ kind: "idle" });
-          }}
-          style={{ width: "100%" }}
-        />
-      </Field>
+      {baseUrlRequired && (
+        <Field label={provider === "ollama" ? "Ollama server URL" : "Azure endpoint URL"}>
+          <input
+            type="text"
+            value={baseUrl}
+            autoComplete="off"
+            spellCheck={false}
+            placeholder={baseUrlPlaceholder(provider)}
+            onChange={(e) => {
+              setBaseUrlValue(e.target.value);
+              setStatus({ kind: "idle" });
+            }}
+            style={{ width: "100%" }}
+          />
+          {provider === "ollama" && (
+            <p className="small muted" style={{ margin: "6px 0 0" }}>
+              Leave blank for the default. The Ollama server must allow this add-in's origin (set
+              OLLAMA_ORIGINS).
+            </p>
+          )}
+        </Field>
+      )}
+
+      {keyRequired ? (
+        <Field label={`${PROVIDER_LABELS[provider]} API key`}>
+          <input
+            type="password"
+            value={key}
+            autoComplete="off"
+            placeholder="Paste your key"
+            onChange={(e) => {
+              setKeyValue(e.target.value);
+              setStatus({ kind: "idle" });
+            }}
+            style={{ width: "100%" }}
+          />
+        </Field>
+      ) : (
+        <p className="small muted" style={{ margin: 0 }}>
+          No API key needed. Ollama runs on your machine.
+        </p>
+      )}
 
       <div className="row" style={{ gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <Button variant="default" size="sm" loading={status.kind === "testing"} onClick={runTest}>
           Test
         </Button>
-        <Button variant="primary" size="sm" disabled={!key.trim() || !model.trim()} onClick={save}>
+        <Button variant="primary" size="sm" disabled={!canSubmit} onClick={save}>
           Save
         </Button>
         {status.kind === "ok" && (
@@ -215,7 +286,9 @@ export function ProviderKeyForm({ onSaved }: { onSaved?: () => void }) {
       </div>
 
       <p className="small muted" style={{ margin: 0 }}>
-        Your key stays on this device and is sent only to {PROVIDER_LABELS[provider]}.
+        {provider === "ollama"
+          ? "Everything runs on this device against your local Ollama server. Nothing leaves your machine."
+          : `Your key stays on this device and is sent only to ${PROVIDER_LABELS[provider]}.`}
       </p>
     </div>
   );

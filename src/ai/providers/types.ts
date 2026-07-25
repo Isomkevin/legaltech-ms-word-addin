@@ -2,11 +2,13 @@
  * Provider-agnostic chat interface.
  *
  * One shape for every provider so the rest of the community code never branches
- * on which vendor is active. OpenAI and Anthropic adapters implement it today;
- * a Gemini adapter (via the optional self-host proxy) can be added later without
- * touching callers.
+ * on which vendor is active. OpenAI and Anthropic have bespoke adapters; Gemini,
+ * Groq, Ollama, and Azure OpenAI all speak the OpenAI Chat Completions wire
+ * format, so they share one adapter (`makeChatCompletions`) pointed at a
+ * per-provider base URL. Ollama runs fully local (no key); Azure uses an
+ * `api-key` header instead of a bearer token.
  */
-export type ProviderId = "openai" | "anthropic";
+export type ProviderId = "openai" | "anthropic" | "gemini" | "groq" | "ollama" | "azure";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
