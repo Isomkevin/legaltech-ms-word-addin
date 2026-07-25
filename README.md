@@ -63,8 +63,8 @@ It works on Word for Windows, Word for Mac, and Word on the web.
 Then download the code:
 
 ```bash
-git clone https://github.com/Vaquill-AI/vaquill-word-addin.git
-cd vaquill-word-addin
+git clone https://github.com/Vaquill-AI/ms-word-addin.git
+cd ms-word-addin
 npm install
 ```
 

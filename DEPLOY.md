@@ -103,8 +103,8 @@ Local test of the exact production image:
 docker build \
   --build-arg VITE_SUPABASE_URL=https://<your-project>.supabase.co \
   --build-arg VITE_SUPABASE_ANON_KEY=<anon-key> \
-  -t vaquill-word-addin .
-docker run --rm -p 8080:8080 vaquill-word-addin
+  -t ms-word-addin .
+docker run --rm -p 8080:8080 ms-word-addin
 # then open http://localhost:8080/health  -> "ok"
 ```
 
