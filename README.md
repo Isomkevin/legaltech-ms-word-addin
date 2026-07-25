@@ -6,13 +6,14 @@ A Microsoft Word add-in (task pane) that brings Vaquill AI contract review, grou
 
 It comes in two builds.
 The **hosted** build reads the open document through the Office JavaScript API, calls the Vaquill AI backend for the legal intelligence, and applies the results back into the document as native Word tracked changes, comments, and content controls.
-The **community** build runs standalone on your own OpenAI or Anthropic key, with no hosted backend.
+The **community** build runs standalone on your own AI key (OpenAI, Anthropic, Google Gemini, Groq, Azure OpenAI, or a fully local Ollama server), with no hosted backend.
 
 Everything operates on the document you already have open in Word.
 There is no separate upload step: the open document is the subject.
 
 > **Community edition (bring-your-own-key).**
-> A standalone, self-hostable **community build that runs on your own API key (OpenAI or Anthropic)** is available.
+> A standalone, self-hostable **community build that runs on your own AI key** is available.
+> It supports **OpenAI, Anthropic, Google Gemini, Groq, Azure OpenAI, and local Ollama** (Ollama needs no key and keeps everything on your machine).
 > It runs the add-in against your own provider, with no hosted Vaquill AI backend.
 > To run it, see [Run it yourself](#run-it-yourself-community-edition) below.
 > The default (cloud) build in this repo still targets the hosted backend (see [Backend requirement](#backend-requirement)).
@@ -35,26 +36,29 @@ There is no separate upload step: the open document is the subject.
 | Case-law existence check (does a cited case exist) | Yes, against the Vaquill AI corpus | Yes, with your own free CourtListener token |
 | Good-law / treatment signal (is a case still good law) | Yes | No |
 | Statute verification and legal research | Yes | No |
-| Authored tracked-changes .docx export | Yes | No |
-| Document compare (redline against a reference) | Yes | No |
+| Redlined .docx export | Yes, authored (branded author, server OOXML) | Yes, on-device (apply all, then download the tracked-changes copy) |
+| Document compare (redline against a reference) | Yes, any format + hidden-revision detector | Yes, on-device text compare (DOCX, TXT, MD) |
 | Save work to matters, vendors, or the web app | Yes | No |
-| AI provider | Managed by Vaquill AI | Your own OpenAI or Anthropic key |
-| Where your text is sent | Vaquill AI's backend | Only to the AI provider you choose |
+| AI provider | Managed by Vaquill AI | Your own key: OpenAI, Anthropic, Gemini, Groq, Azure OpenAI, or local Ollama |
+| Where your text is sent | Vaquill AI's backend | Only to the provider you choose (nothing leaves your machine with local Ollama) |
 | Hosting | Nothing to run, we host it | You run it, on your machine or your own server |
 | Account | Vaquill AI account | No account, just your key |
 | Cost | Subscription | You pay your AI provider directly |
 
 ## Run it yourself (community edition)
 
-The community edition runs the add-in on your own OpenAI or Anthropic key, with no Vaquill AI backend.
-Your documents and prompts go only to the AI provider you choose.
+The community edition runs the add-in on your own AI key, with no Vaquill AI backend.
+Your documents and prompts go only to the AI provider you choose (or nowhere off your machine, with local Ollama).
 It works on Word for Windows, Word for Mac, and Word on the web.
 
 ### Before you start
 
 - Install Node.js from https://nodejs.org (the version labeled "LTS").
 - Have Microsoft Word.
-- Get an API key from OpenAI (https://platform.openai.com/api-keys) or Anthropic (https://console.anthropic.com/settings/keys). You paste it into the add-in later.
+- Pick an AI provider and get a key. You paste it into the add-in later.
+  - **OpenAI** (https://platform.openai.com/api-keys), **Anthropic** (https://console.anthropic.com/settings/keys), **Google Gemini** (https://aistudio.google.com/apikey), or **Groq** (https://console.groq.com/keys): paste the key, pick a model.
+  - **Azure OpenAI**: paste your key and your full deployment endpoint URL (`https://<resource>.openai.azure.com/openai/deployments/<name>/chat/completions?api-version=...`).
+  - **Ollama** (fully local, no key): install from https://ollama.com, run a model (`ollama run llama3.1`), and start Ollama so the add-in's origin is allowed, e.g. `OLLAMA_ORIGINS=https://localhost:3000 ollama serve`.
 
 Then download the code:
 
@@ -86,7 +90,7 @@ For a step-by-step guide with screenshots, see https://www.vaquill.ai/word/sidel
 - **Word on Mac:** copy `manifest.localhost.xml` into `~/Library/Containers/com.microsoft.Word/Data/Documents/wef` (create the `wef` folder if it is missing), quit and reopen Word, then click Add-ins, My Add-ins, and pick Vaquill AI under Developer Add-ins.
 - **Word on Windows:** put `manifest.localhost.xml` in a folder and share the folder with yourself (right-click, Properties, Sharing). In Word go to File, Options, Trust Center, Trust Center Settings, Trusted Add-in Catalogs, add the folder's network path, tick "Show in Menu", reopen Word, and pick Vaquill AI from the Shared Folder tab.
 
-**4. Open it.** In Word, click "Open Vaquill AI". The first time, choose OpenAI or Anthropic, paste your key, click Test, then Save. Your key stays on your device and is sent only to that provider.
+**4. Open it.** In Word, click "Open Vaquill AI". The first time, choose your provider (OpenAI, Anthropic, Gemini, Groq, Azure, or local Ollama), enter your key and model (Ollama needs no key; Azure also takes its endpoint URL), click Test, then Save. Your key stays on your device and is sent only to that provider.
 
 #### Walkthrough (Word on the web)
 
@@ -112,9 +116,9 @@ Open Vaquill AI from the ribbon:
 
 ![Vaquill AI first screen](assets/screenshots/install-5-sign-in.webp)
 
-Choose OpenAI or Anthropic and paste your own key:
+Choose your provider (OpenAI, Anthropic, Gemini, Groq, Azure, or local Ollama) and enter your own key:
 
-![Choose OpenAI or Anthropic and paste your key](assets/screenshots/install-6-bring-your-own-key.webp)
+![Choose your AI provider and enter your key](assets/screenshots/install-6-bring-your-own-key.webp)
 
 ### Run it on a server for your firm
 
@@ -126,13 +130,16 @@ It needs no server or database: the community build is just static files, so any
 3. Copy `manifest.community.xml`, replace every `YOUR-DOMAIN.example.com` with your address, and replace the `<Id>` line with a new unique id (create one at https://guidgenerator.com).
 4. Give that manifest to each person to sideload with the steps above. Each person adds their own key.
 
+A plain static host imposes no restriction on which AI provider users pick. If you instead serve the bundle behind a strict `Content-Security-Policy` (for example the hardened `deploy/nginx.conf`), its `connect-src` allowlist decides which providers can be reached: OpenAI, Anthropic, Groq, and Gemini are allowed by default; **Azure OpenAI and a local Ollama server are per-deployment** and need their host added. See the provider CSP note in [DEPLOY.md](DEPLOY.md#self-hosting-the-community-edition-bring-your-own-key).
+
 For a step-by-step version with the easiest free HTTPS hosts (Cloudflare Pages, Netlify, Vercel, GitHub Pages), see [DEPLOY.md](DEPLOY.md#self-hosting-the-community-edition-bring-your-own-key).
 
 ### What it can do, and what needs a Vaquill AI account
 
 The comparison table above lists this in full.
 In short, these work with just your key: the assistant, drafting, contract review and redlines, playbooks, NDA triage, the prompt and clause libraries, and all the document tools.
-These need a Vaquill AI account: statute verification, good-law treatment, document compare, authored tracked-changes export, and saving to the hosted product.
+Document compare and a redlined-`.docx` export also work in the community edition, on-device (a text compare of DOCX/TXT/MD, and an apply-all-then-download of the tracked-changes copy).
+These need a Vaquill AI account: statute verification, good-law treatment, the authored server-side tracked-changes export (branded author), the compare hidden-revision detector, and saving to the hosted product.
 Case-law existence checking works if you add your own free CourtListener token in Settings (get one at https://www.courtlistener.com/help/api/rest/).
 
 ### Updating and troubleshooting
@@ -182,7 +189,7 @@ The Assistant can also route a chat message into a document action (redline, nav
 Turn the open contract into a structured set of grounded redlines.
 
 - Contract type and your side are auto-detected (and adjustable), then the review runs against your playbook.
-- Redlines show **severity**, an **inline diff** (with a Redline / Final toggle), the **why**, and a **fallback if rejected**.
+- Redlines show **severity**, an **inline diff**, the **why**, and a **fallback if rejected**.
 - A server-computed **sign-off gate** (manager / partner / GC) and **deal-breaker** flags tell you what needs approval before sending.
 - Apply changes as native tracked changes, or export a corrected `.docx` with tracked changes and comments baked in.
 - Per-clause **"draft a stronger fix"** runs an agentic diagnose to draft to validate to critique loop.

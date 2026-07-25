@@ -16,7 +16,9 @@ See [Hosting the full hosted build](#hosting-the-full-hosted-build).
 ## Self-hosting the community edition (bring your own key)
 
 This is the simplest path and it needs no server.
-The community build is a folder of static files: your firm runs the add-in on its own OpenAI or Anthropic key, with no Vaquill backend, no database, and nothing to keep running.
+The community build is a folder of static files: your firm runs the add-in on its own AI key (OpenAI, Anthropic, Google Gemini, Groq, Azure OpenAI, or a local Ollama server), with no Vaquill backend, no database, and nothing to keep running.
+
+> **Provider CSP note.** If you serve the bundle with the hardened `deploy/nginx.conf` (or any strict `Content-Security-Policy`), its `connect-src` allowlist governs which provider the browser may call. OpenAI, Anthropic, Groq, and Gemini are allowed by default. **Azure OpenAI** (each resource is its own `<name>.openai.azure.com` host) and a **local Ollama** server (`http://localhost:11434`) are per-deployment, so if your users pick those you must add their host to `connect-src`. A static host with no CSP (Cloudflare Pages, Netlify, `npm run dev:community`) imposes no such limit.
 
 **You do NOT need** a VPS, Docker, nginx, Supabase, a backend, or any of the hosted-build setup further down.
 The only hard requirement is a host that serves the files over HTTPS (Office refuses to load an add-in over plain HTTP).
@@ -156,14 +158,15 @@ If, while sideloaded, the pane is blank and the host console shows a CSP error n
 3. Redeploy and retest.
 
 Relax `script-src` only as far as the host actually requires, and never loosen `object-src` or `frame-ancestors`.
-The only intentional `connect-src` entries beyond our own API + Supabase + Office are the bring-your-own-key hosts the pane calls directly from the browser: `api.openai.com`, `api.anthropic.com`, and `www.courtlistener.com`.
+The only intentional `connect-src` entries beyond our own API + Supabase + Office are the bring-your-own-key hosts the pane calls directly from the browser: `api.openai.com`, `api.anthropic.com`, `api.groq.com`, `generativelanguage.googleapis.com` (Google Gemini), and `www.courtlistener.com`.
 These are fixed, well-known API hosts reached only on the BYOK path; do not add wildcards or other hosts.
+Two BYOK providers are per-deployment and deliberately left out of the default allowlist: Azure OpenAI (add your `https://<resource>.openai.azure.com` host) and a local Ollama server (add `http://localhost:11434`). Add only the specific host your firm uses, not a wildcard.
 
 ## Security posture (summary)
 
 - Rootless nginx (uid 101), non-privileged port 8080, `server_tokens off`.
 - HSTS, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and a locked-down `Permissions-Policy` on every response.
-- Strict CSP: `default-src 'self'`, `object-src 'none'`, `base-uri 'self'`, `connect-src` limited to our API + the Supabase project + Office + the BYOK provider hosts (`api.openai.com`, `api.anthropic.com`, `www.courtlistener.com`), and a `frame-ancestors` allowlist for the Office web hosts (no `X-Frame-Options`, which cannot express those origins).
+- Strict CSP: `default-src 'self'`, `object-src 'none'`, `base-uri 'self'`, `connect-src` limited to our API + the Supabase project + Office + the BYOK provider hosts (`api.openai.com`, `api.anthropic.com`, `api.groq.com`, `generativelanguage.googleapis.com`, `www.courtlistener.com`; Azure OpenAI and local Ollama are per-deployment opt-ins), and a `frame-ancestors` allowlist for the Office web hosts (no `X-Frame-Options`, which cannot express those origins).
 - Source maps are stripped from the image and 404 if requested; dotfiles are denied.
 - TLS is mandatory (Office requires HTTPS) and terminated by Traefik with an auto-renewing Let's Encrypt certificate.
 - No secrets in the bundle: only the public Supabase anon key, which RLS backs; the auth session is held in memory only and never written to `localStorage` or the Office Settings object.
