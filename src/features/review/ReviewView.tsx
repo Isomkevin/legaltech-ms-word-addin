@@ -3,6 +3,8 @@ import { ViewHeader } from "@/ui/ViewHeader";
 import { Banner, Button, Badge } from "@/ui/primitives";
 import { readReviewSnapshot, writeReviewSnapshot } from "@/office/reviewState";
 import { readDocumentFingerprint } from "@/office/document";
+import { countTrackedChanges } from "@/office/changes";
+import { useAppNav } from "@/app/nav";
 import type { ReviewSnapshot } from "@/lib/reviewState";
 import { ReviewForm } from "./ReviewForm";
 import { ReviewSummary } from "./ReviewSummary";
@@ -135,8 +137,16 @@ export function ReviewView({
   onPendingConsumed?: () => void;
 } = {}) {
   const { state, run, reset, hydrate } = useReviewContext();
+  const { navigate: appNavigate } = useAppNav();
   const [params, setParams] = useState<RunParams | null>(null);
   const [formInit, setFormInit] = useState<{ contractType: string; playbookId: string } | null>(null);
+  // Unresolved tracked changes already in the draft. The review reads the
+  // document as-if-accepted, but a clause whose OWN edits are still pending
+  // cannot be re-anchored on apply (its stored text is the deletion + insertion
+  // interleaved, matching neither the clean nor the original text), so its
+  // redline silently fails to apply. Warn before running -- same guard the Edit
+  // flow shows. Best-effort; a failed probe just skips the warning.
+  const [pendingTracked, setPendingTracked] = useState(0);
   // Which section of a completed review is showing (Redlines / Summary / Flags).
   const [resultsTab, setResultsTab] = useState<ResultsTab>("redlines");
   // Quick-check presets: an NDA screen and a compliance check are review flavors,
@@ -171,6 +181,20 @@ export function ReviewView({
       alive = false;
     };
   }, []);
+
+  // Probe the document's unresolved tracked changes whenever the setup screen is
+  // showing (no result yet), so the pre-run warning is fresh. Re-runs when a
+  // result clears (New review) or the status returns to idle.
+  useEffect(() => {
+    if (result) return;
+    let cancelled = false;
+    void countTrackedChanges()
+      .then((n) => !cancelled && setPendingTracked(n))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [result, state.status]);
 
   // "Run this playbook" handoff from the Playbook tab: reset to a fresh form
   // pre-filled with the playbook's contract type + selection, then clear the
@@ -534,6 +558,26 @@ export function ReviewView({
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setDismissedResume(true)}>
               Start fresh
+            </Button>
+          </div>
+        </Banner>
+      )}
+
+      {pendingTracked > 0 && !busy && (
+        <Banner tone="warn">
+          <p className="small" style={{ margin: 0 }}>
+            This document has {pendingTracked} unresolved tracked change
+            {pendingTracked === 1 ? "" : "s"}. The review reads the document as if they were
+            accepted, but a clause whose own edits are still pending can't be re-anchored, so its
+            redline may not apply. Resolve them first for a clean run.
+          </p>
+          <div className="row" style={{ gap: 8, marginTop: 8 }}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => appNavigate("review", { kind: "openReviewSub", sub: "changes" })}
+            >
+              Review changes
             </Button>
           </div>
         </Banner>

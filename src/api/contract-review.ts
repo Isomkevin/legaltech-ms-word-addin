@@ -38,6 +38,10 @@ export interface ReviewProgress {
 export interface ReviewStreamHandlers {
   onProgress?: (p: ReviewProgress) => void;
   onResult: (r: ContractReviewResponse) => void;
+  /** The server's analysis id, delivered on the `init` event at the START of the
+   *  stream. Captured so a stream that drops mid-review (network stall) can
+   *  recover the already-saved result by id (see fetchSavedReview). */
+  onInit?: (analysisId: string) => void;
   signal?: AbortSignal;
 }
 
@@ -76,8 +80,9 @@ export async function streamContractReview(
     onEvent: ({ event, data }) => {
       switch (event) {
         case "init": {
-          const p = safeParse<{ totalSteps?: number }>(data);
+          const p = safeParse<{ totalSteps?: number; analysisId?: string }>(data);
           if (typeof p?.totalSteps === "number") total = p.totalSteps;
+          if (p?.analysisId && handlers.onInit) handlers.onInit(p.analysisId);
           break;
         }
         case "progress": {
@@ -102,6 +107,31 @@ export async function streamContractReview(
       }
     },
   });
+}
+
+/**
+ * Fetch a saved contract-review analysis by id, to RECOVER a review whose stream
+ * dropped (network stall / half-open socket) AFTER the server had finished and
+ * persisted it. The `init` event gives us the id up front, so on a transport
+ * error we can pull the completed, saved result instead of discarding the work
+ * with a "Cannot reach Vaquill" error. The saved `result` column is the SAME
+ * camelCase shape as the streamed result (both are model_dump(by_alias=True)),
+ * so it maps straight onto ContractReviewResponse. Returns null if the analysis
+ * is missing, still in flight, or holds no usable redline set.
+ */
+export async function fetchSavedReview(analysisId: string): Promise<ContractReviewResponse | null> {
+  try {
+    const row = await request<{ result?: ContractReviewResponse | null }>(
+      `/api/v1/legal-tools/analyses/${encodeURIComponent(analysisId)}`,
+    );
+    const result = row?.result ?? null;
+    // A row with no redlines array is not a usable recovered review (still
+    // running, or a shape we cannot render).
+    if (!result || !Array.isArray(result.redlines)) return null;
+    return result;
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------

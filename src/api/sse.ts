@@ -49,7 +49,14 @@ async function openStream(path: string, body: unknown, bearer: string, opts: Str
 // socket). Without this, reader.read() below can hang forever and leave the
 // review/chat UI stuck "streaming" with no error. The backend sends `:`
 // heartbeats well inside this window, so a healthy stream never trips it.
-const STREAM_IDLE_TIMEOUT_MS = 60_000;
+//
+// Set to 120s: a Deep-tier contract review can legitimately run a single silent
+// step (the deep redline LLM pass) well past a minute, and a 60s window was
+// tripping on those and on brief network handoffs mid-review. A genuinely
+// half-open socket still surfaces an error, just after a longer grace period;
+// the review flow also recovers the server-saved analysis on such a stall (see
+// useReview), so a late timeout no longer discards completed work.
+const STREAM_IDLE_TIMEOUT_MS = 120_000;
 
 /** reader.read() raced against an idle deadline. On timeout the outer finally
  *  cancels the reader, settling the still-pending read. */

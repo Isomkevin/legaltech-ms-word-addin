@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   streamContractReview,
+  fetchSavedReview,
   MAX_DOCUMENT_CHARS,
   type ReviewProgress,
 } from "@/api/contract-review";
@@ -96,6 +97,11 @@ export function useReview() {
     // buffer and drop it) does not overwrite a finished, billed review with a
     // truncation error. Declared outside try so the catch can see it.
     let delivered: ContractReviewResponse | null = null;
+    // The server's analysis id from the init event (single-pass path only). If
+    // the stream drops mid-review after the server already finished + saved the
+    // review, the catch recovers the saved result by this id instead of failing.
+    // Left null on the sectioned path, where one id can't rebuild the merged set.
+    let analysisId: string | null = null;
     try {
       const documentText =
         params.scope === "selection"
@@ -152,6 +158,9 @@ export function useReview() {
           { documentText, ...base },
           {
             signal: controller.signal,
+            onInit: (id) => {
+              analysisId = id;
+            },
             onProgress: (progress) => setState((s) => ({ ...s, progress })),
             onResult: (result) => {
               delivered = result;
@@ -229,6 +238,19 @@ export function useReview() {
       if (delivered) {
         setState((s) => ({ ...s, status: "done", progress: null, result: delivered, error: null }));
         return;
+      }
+      // The stream dropped (network stall / half-open socket) before delivering,
+      // but on the single-pass path the server may have finished and SAVED the
+      // review already (a Deep review can outlast a shaky connection). If we
+      // captured the analysis id from the init event, recover the saved result
+      // rather than discarding completed, billed work with a "Cannot reach
+      // Vaquill" error.
+      if (analysisId && !controller.signal.aborted) {
+        const recovered = await fetchSavedReview(analysisId);
+        if (recovered) {
+          setState((s) => ({ ...s, status: "done", progress: null, result: recovered, error: null }));
+          return;
+        }
       }
       const error = errorMessage(e);
       setState((s) => ({ ...s, status: "error", progress: null, result: null, error }));
