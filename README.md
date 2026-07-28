@@ -45,6 +45,25 @@ There is no separate upload step: the open document is the subject.
 | Account | Vaquill AI account | No account, just your key |
 | Cost | Subscription | You pay your AI provider directly |
 
+## Roadmap
+
+Here is where we are taking the add-in.
+This is directional, not a set of dated commitments: the order and timing can change, and some items will land in the hosted build before the community build (or the other way round).
+If something here matters to you, tell us and we will prioritize with real usage in mind.
+
+- More models and more privacy: continued provider expansion on top of today's OpenAI, Anthropic, Google Gemini, Groq, Azure OpenAI, and local Ollama, so you can run entirely on your own or your firm's models.
+- Smarter in-Word assistance: native inline flags and advisories rendered by Word itself, and deeper natural-language document actions.
+- Enterprise and IT: Microsoft 365 single sign-on (SSO), SAML and OIDC federation, user provisioning and deprovisioning (SCIM), an admin console with roles and exportable audit logs, and centralized Microsoft 365 deployment so IT can roll the add-in out to everyone.
+- Document management: integration with iManage, NetDocuments, and SharePoint, so you can open and save straight from your firm's DMS.
+- Data residency: regional hosting options for teams with data-sovereignty requirements.
+- Productivity: keyboard shortcuts and run-on-open.
+
+### Stay in the loop
+
+- Watch or star this repository to get notified on each release.
+- Open a GitHub issue to request a feature or tell us what to build next.
+- For enterprise features (SSO, SCIM, DMS, data residency), early access, or timelines, email us at contact@vaquill.ai.
+
 ## Run it yourself (community edition)
 
 The community edition runs the add-in on your own AI key, with no Vaquill AI backend.
