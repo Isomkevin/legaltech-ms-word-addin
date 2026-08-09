@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Vaquill for Microsoft Word - contract review, playbooks, drafting, and US legal research inside Word.",
+  "description": "VaquHakicaill for Microsoft Word - contract review, playbooks, drafting, and US legal research inside Word.",
   "engines": {
     "node": ">=20.0.0"
   },
