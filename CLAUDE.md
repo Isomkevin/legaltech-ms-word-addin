@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-Vaquill for Microsoft Word - a Word task-pane add-in. Vite + React 18 + TypeScript SPA, Office.js (WordApi 1.6 floor), Supabase auth. Thin client over the existing Vaquill FastAPI backend.
+HakiChain for Microsoft Word - a Word task-pane add-in. Vite + React 18 + TypeScript SPA, Office.js (WordApi 1.6 floor), Supabase auth. Thin client over the existing HakiChain FastAPI backend.
 
-> This is a **separate repo** from the main Vaquill backend. The add-in performs no contract analysis, retrieval, or generation of its own. The legal intelligence lives in the backend; this repo reads the open document through Office.js, calls the backend, and applies results back as native Word tracked changes, comments, and content controls. It will not run with only an LLM API key.
+> This is a **separate repo** from the main HakiChain backend. The add-in performs no contract analysis, retrieval, or generation of its own. The legal intelligence lives in the backend; this repo reads the open document through Office.js, calls the backend, and applies results back as native Word tracked changes, comments, and content controls. It will not run with only an LLM API key.
 
 ## Quick Reference Commands
 
@@ -25,18 +25,18 @@ Requires Node 20+, a Microsoft 365 account, and Word (desktop or web). Deploymen
 
 ```text
 Word (desktop / Mac / web)
-  task pane (word.vaquill.ai)  --Office.js-->  the open document
+  task pane (word.hakichain.com)  --Office.js-->  the open document
         |
         |  Supabase JWT (Bearer) + SSE
         v
-  Vaquill AI backend (api.vaquill.ai)   [required, unchanged except CORS]
+  HakiChain AI backend (api.hakichain.com)   [required, unchanged except CORS]
 ```
 
-Two hosted surfaces: the static task-pane SPA at `word.vaquill.ai`, and the unchanged backend at `api.vaquill.ai` reached over the same Supabase-JWT bearer auth and SSE contract the web app uses.
+Two hosted surfaces: the static task-pane SPA at `word.hakichain.com`, and the unchanged backend at `api.hakichain.com` reached over the same Supabase-JWT bearer auth and SSE contract the web app uses.
 
 ### The only required backend change
 
-Add `https://word.vaquill.ai` (and `https://localhost:3000` for dev) to `CORS_ORIGINS` in the backend `app/core/config.py`. Because `CORS_ALLOW_CREDENTIALS` is true, the exact origin must match, so the pane must be served from `word.vaquill.ai`. `Authorization`, `Content-Type`, `X-Organization-ID`, and `X-Timezone` are already whitelisted. Everything else reuses existing endpoints.
+Add `https://word.hakichain.com` (and `https://localhost:3000` for dev) to `CORS_ORIGINS` in the backend `app/core/config.py`. Because `CORS_ALLOW_CREDENTIALS` is true, the exact origin must match, so the pane must be served from `word.hakichain.com`. `Authorization`, `Content-Type`, `X-Organization-ID`, and `X-Timezone` are already whitelisted. Everything else reuses existing endpoints.
 
 ## App Shell and Navigation
 
@@ -64,7 +64,7 @@ The active-org change bumps `orgVersion`, which is the `key` on `app-body`, remo
 ## Critical Gotchas (Office.js)
 
 ### Tracked-change author is read-only
-Office.js cannot set the author of a tracked change. Every programmatic edit made while tracking is on is attributed to the signed-in Word user. When edits must be attributed to "Vaquill AI Contract Review" regardless of the user's identity, use the **server-side export path** (`POST /legal-tools/export-corrected`, inserted via `body.insertFileFromBase64`), not in-pane edits.
+Office.js cannot set the author of a tracked change. Every programmatic edit made while tracking is on is attributed to the signed-in Word user. When edits must be attributed to "HakiChain AI Contract Review" regardless of the user's identity, use the **server-side export path** (`POST /legal-tools/export-corrected`, inserted via `body.insertFileFromBase64`), not in-pane edits.
 
 ### Redline apply = TrackAll + tracked insertText
 Remember the prior `changeTrackingMode`, set `TrackAll`, anchor with `body.search(currentLanguage, {matchCase: true})` (respecting the 255-char search limit by anchoring on a shorter unique substring), `range.insertText(proposed, "Replace")`, then restore the prior mode and `sync()`. Only auto-apply `grounding === "verified"` redlines. `unverified` shows "verify manually"; `insertion` is a missing-clause add inserted at a chosen location, not searched for. Mirror the backend whitespace-normalized fallback; fall back to `export-corrected` for anything the pane cannot anchor.
@@ -108,7 +108,7 @@ Contract review (`/legal-tools/contract-review` + `/stream`, `/contract-review/d
 
 - `src/config.ts`: `apiBase`/`appBase` fixed by `import.meta.env.PROD`; Supabase URL + public anon key injected at build (Docker build args). The client bundle holds **no secrets**. `service_role` key must never appear here.
 - Manifest: add-in-only XML (`manifest.xml` prod, `manifest.dev.xml` sideload), not the unified JSON manifest (JSON drops perpetual Office, Outlook on Mac, mobile). Requirement floor WordApi 1.6; feature-detect 1.7 to 1.9. List every navigated domain in `<AppDomains>`.
-- Hosting: static HTTPS, real cert. CSP `script-src` allows `https://appsforoffice.microsoft.com`; `connect-src` includes `api.vaquill.ai` + Supabase origins; `frame-ancestors` permits the Office web hosts; never send `X-Frame-Options: DENY`. Ribbon icons must stay cacheable (no `no-store`).
+- Hosting: static HTTPS, real cert. CSP `script-src` allows `https://appsforoffice.microsoft.com`; `connect-src` includes `api.hakichain.com` + Supabase origins; `frame-ancestors` permits the Office web hosts; never send `X-Frame-Options: DENY`. Ribbon icons must stay cacheable (no `no-store`).
 
 ## Writing Style
 

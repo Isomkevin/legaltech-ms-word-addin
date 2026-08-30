@@ -3,7 +3,7 @@
  * once and the per-surface guides are opt-in afterward. Local to the add-in
  * origin (does NOT travel with the .docx), mirroring prefs.ts / clientRules.ts.
  */
-const SEEN_KEY = "vaquill.toursSeen";
+const SEEN_KEY = "hakichain.toursSeen";
 
 let cache: Set<string> | null = null;
 

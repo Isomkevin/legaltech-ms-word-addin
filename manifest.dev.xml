@@ -9,17 +9,17 @@
   <!-- DEV manifest. Sideload this one. Points at the local Vite dev server. -->
   <Id>b1c2d3e4-0000-4dev-9e62-3c5d1a8b6f04</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Vaquill AI</ProviderName>
+  <ProviderName>HakiChain AI</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Vaquill AI for Word (Dev)" />
-  <Description DefaultValue="Local development build of the Vaquill AI Word add-in." />
+  <DisplayName DefaultValue="HakiChain for Word (Dev)" />
+  <Description DefaultValue="Local development build of the HakiChain AI Word add-in." />
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png" />
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-80.png" />
-  <SupportUrl DefaultValue="https://www.vaquill.ai/support" />
+  <SupportUrl DefaultValue="https://www.hakichain.com/support" />
 
   <AppDomains>
     <AppDomain>https://localhost:3000</AppDomain>
-    <AppDomain>https://api.vaquill.ai</AppDomain>
+    <AppDomain>https://api.hakichain.com</AppDomain>
   </AppDomains>
 
   <Hosts>
@@ -44,18 +44,18 @@
         <DesktopFormFactor>
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
             <OfficeTab id="TabHome">
-              <Group id="Vaquill.Group">
-                <Label resid="Vaquill.Group.Label" />
+              <Group id="HakiChain.Group">
+                <Label resid="HakiChain.Group.Label" />
                 <Icon>
                   <bt:Image size="16" resid="Icon.16" />
                   <bt:Image size="32" resid="Icon.32" />
                   <bt:Image size="80" resid="Icon.80" />
                 </Icon>
-                <Control xsi:type="Button" id="Vaquill.OpenPane">
-                  <Label resid="Vaquill.OpenPane.Label" />
+                <Control xsi:type="Button" id="HakiChain.OpenPane">
+                  <Label resid="HakiChain.OpenPane.Label" />
                   <Supertip>
-                    <Title resid="Vaquill.OpenPane.Label" />
-                    <Description resid="Vaquill.OpenPane.Tip" />
+                    <Title resid="HakiChain.OpenPane.Label" />
+                    <Description resid="HakiChain.OpenPane.Tip" />
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="Icon.16" />
@@ -63,7 +63,7 @@
                     <bt:Image size="80" resid="Icon.80" />
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>Vaquill.Taskpane</TaskpaneId>
+                    <TaskpaneId>HakiChain.Taskpane</TaskpaneId>
                     <SourceLocation resid="Taskpane.Url" />
                   </Action>
                 </Control>
@@ -83,11 +83,11 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/index.html" />
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="Vaquill.Group.Label" DefaultValue="Vaquill AI" />
-        <bt:String id="Vaquill.OpenPane.Label" DefaultValue="Open Vaquill AI" />
+        <bt:String id="HakiChain.Group.Label" DefaultValue="HakiChain AI" />
+        <bt:String id="HakiChain.OpenPane.Label" DefaultValue="Open HakiChain AI" />
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="Vaquill.OpenPane.Tip" DefaultValue="Open the Vaquill AI pane to review the open contract." />
+        <bt:String id="HakiChain.OpenPane.Tip" DefaultValue="Open the HakiChain AI pane to review the open contract." />
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

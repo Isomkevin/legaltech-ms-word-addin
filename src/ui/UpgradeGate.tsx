@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-/** Where the "Get Vaquill AI hosted" upsell points. One place to change it. */
-export const HOSTED_URL = "https://app.vaquill.ai/auth/signup";
+/** Where the "Get HakiChain AI hosted" upsell points. One place to change it. */
+export const HOSTED_URL = "https://app.hakichain.com/auth/signup";
 
 export function LockIcon({ size = 16 }: { size?: number }) {
   return (
@@ -23,7 +23,7 @@ export function LockIcon({ size = 16 }: { size?: number }) {
 }
 
 /**
- * Community-edition upsell card. Shown where a feature needs Vaquill AI's hosted
+ * Community-edition upsell card. Shown where a feature needs HakiChain AI's hosted
  * data (corpus, case-law, statutes) or the hosted product, so the user SEES what
  * the fully-managed plan adds instead of the feature being hidden or failing on
  * click. Copy stays on-brand: no vendor names, and it complements rather than
@@ -48,7 +48,7 @@ export function UpgradeGate({ title, children }: { title: string; children?: Rea
         rel="noreferrer"
         style={{ textDecoration: "none" }}
       >
-        Get Vaquill AI hosted
+        Get HakiChain AI hosted
       </a>
     </div>
   );
@@ -62,7 +62,7 @@ export function UpgradeLink({ label }: { label: string }) {
       href={HOSTED_URL}
       target="_blank"
       rel="noreferrer"
-      title="Available on the Vaquill AI hosted plan"
+      title="Available on the HakiChain AI hosted plan"
       style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
     >
       <LockIcon size={14} /> {label}

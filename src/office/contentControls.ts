@@ -1,7 +1,7 @@
 /**
  * Structured fields and clause locking via tagged Word content controls.
  *
- * Every control we create carries the same tag (VAQUILL_TAG) so we can find,
+ * Every control we create carries the same tag (HAKICHAIN_TAG) so we can find,
  * lock, and clean up only our own controls without touching content controls
  * the author or another add-in placed. Tagging key fields (dates, amounts,
  * defined terms) makes them navigable, and cannotEdit lets sign-off physically
@@ -10,7 +10,7 @@
 import { runWord } from "./run";
 import { findRanges } from "./search";
 
-export const VAQUILL_TAG = "vaquill";
+export const HAKICHAIN_TAG = "hakichain";
 
 export interface TagFieldsResult {
   dates: number;
@@ -68,7 +68,7 @@ async function wrapMatches(
       const ranges = await findRanges(context, match);
       if (ranges.length !== 1) continue;
       const cc = ranges[0].insertContentControl();
-      cc.tag = VAQUILL_TAG;
+      cc.tag = HAKICHAIN_TAG;
       cc.title = title;
       cc.appearance = Word.ContentControlAppearance.tags;
       created += 1;
@@ -105,16 +105,16 @@ export async function tagKeyFields(): Promise<TagFieldsResult> {
 }
 
 /**
- * Lock (or unlock) every Vaquill-tagged content control. This is how sign-off
+ * Lock (or unlock) every HakiChain-tagged content control. This is how sign-off
  * physically prevents further edits to the reviewed clauses. Returns the count.
  */
-export async function lockVaquillControls(lock: boolean): Promise<number> {
+export async function lockHakiChainControls(lock: boolean): Promise<number> {
   return runWord(async (context) => {
     const controls = context.document.contentControls;
     controls.load("tag");
     await context.sync();
 
-    const ours = controls.items.filter((cc) => cc.tag === VAQUILL_TAG);
+    const ours = controls.items.filter((cc) => cc.tag === HAKICHAIN_TAG);
     for (const cc of ours) {
       cc.cannotEdit = lock;
     }

@@ -52,8 +52,11 @@ export interface AssistantGrounding {
    * `useRag` is the backend master gate for ALL retrieval, so this must be sent
    * separately (overloading useRag as the corpus toggle disables matter-docs and
    * web retrieval too).
+   *
+   * The hosted backend still reads this as `enableVaquillDbSearch` (unchanged
+   * request contract). The pane name is local only.
    */
-  enableVaquillDbSearch?: boolean;
+  enableCorpusSearch?: boolean;
   /** Bring in current information from the web (Exa deep search on the backend). */
   enableWebSearch?: boolean;
   /** US jurisdiction scope: state codes and/or 'federal' (e.g. ['ca','federal']). */
@@ -136,8 +139,9 @@ export async function streamAssistant(
   if (typeof opts?.enableMatterDocsSearch === "boolean") {
     body.enableMatterDocsSearch = opts.enableMatterDocsSearch;
   }
-  if (typeof opts?.enableVaquillDbSearch === "boolean") {
-    body.enableVaquillDbSearch = opts.enableVaquillDbSearch;
+  if (typeof opts?.enableCorpusSearch === "boolean") {
+    // Wire name is the existing backend field. Do not rename without a server change.
+    body.enableVaquillDbSearch = opts.enableCorpusSearch;
   }
   if (typeof opts?.enableWebSearch === "boolean") body.enableWebSearch = opts.enableWebSearch;
   if (opts?.usStates && opts.usStates.length > 0) body.usStates = opts.usStates;

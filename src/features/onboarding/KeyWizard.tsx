@@ -6,7 +6,7 @@ import { ProviderKeyForm } from "./ProviderKeyForm";
  * First-run setup for the community edition. Shown until the user saves a working
  * key, at which point the app unlocks (saving notifies the session, which flips
  * the add-in to authed). Replaces the sign-in screen, since the community build
- * has no Vaquill AI account.
+ * has no HakiChain AI account.
  */
 const LINKS: { label: string; href: string }[] = [
   { label: "Get an OpenAI key", href: "https://platform.openai.com/api-keys" },
@@ -17,7 +17,7 @@ export function KeyWizard() {
   return (
     <div className="stack" style={{ gap: 16, padding: 16, maxWidth: 460, margin: "0 auto" }}>
       <div className="stack" style={{ gap: 4 }}>
-        <h1 style={{ margin: 0, fontSize: "var(--fs-body-lg, 18px)" }}>Set up Vaquill AI</h1>
+        <h1 style={{ margin: 0, fontSize: "var(--fs-body-lg, 18px)" }}>Set up HakiChain AI</h1>
         <p className="small muted" style={{ margin: 0 }}>
           This edition runs on your own AI provider. Add a key to unlock the assistant, review,
           drafting, and the tools. Everything runs against your key, from your machine.
@@ -35,7 +35,7 @@ export function KeyWizard() {
       </div>
       {!isBuildCommunity() && (
         <p className="small muted" style={{ margin: 0, textAlign: "center" }}>
-          Have a Vaquill AI account?{" "}
+          Have a HakiChain AI account?{" "}
           <button
             type="button"
             className="linkaction"

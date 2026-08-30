@@ -12,7 +12,7 @@ import { runWord } from "./run";
  * ledger per matter server-side (rounds, concession history, counterparty
  * profile), which this cannot do from a single document.
  */
-export const NEGOTIATION_NS = "https://vaquill.ai/negotiation/1";
+export const NEGOTIATION_NS = "https://hakichain.com/negotiation/1";
 
 export type ClauseStatus = "open" | "agreed" | "conceded" | "rejected";
 

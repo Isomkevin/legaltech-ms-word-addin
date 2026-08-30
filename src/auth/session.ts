@@ -23,7 +23,7 @@ import { clearAllProviderKeys, isConfigured } from "@/ai/keys";
 type Listener = (user: User | null) => void;
 
 const REFRESH_SKEW_SECONDS = 60;
-const REFRESH_TOKEN_STORAGE_KEY = "vaquill.refreshToken";
+const REFRESH_TOKEN_STORAGE_KEY = "hakichain.refreshToken";
 
 let session: Session | null = null;
 const listeners = new Set<Listener>();

@@ -6,7 +6,7 @@ import { isStatuteCitation, type CitationKind } from "@/features/authority/extra
 import type { ContextSnippet } from "@/lib/context-snippet";
 
 /**
- * Authority verification against Vaquill AI's US corpus.
+ * Authority verification against HakiChain AI's US corpus.
  * Case citations: GET /api/v1/us/citation-lookup?citation=... (JWT, cached).
  * Statute citations: GET /api/v1/us-statutes/resolve?q=... (federal U.S.C. /
  * C.F.R. + state code cites). A matched cluster (cases) or a resolved section
@@ -99,7 +99,7 @@ interface ResolveResponse {
   url?: string;
 }
 
-/** Turn a (relative) in-app path into an absolute link to the Vaquill AI web app. */
+/** Turn a (relative) in-app path into an absolute link to the HakiChain AI web app. */
 function buildAppUrl(url?: string): string | undefined {
   if (!url) return undefined;
   if (url.startsWith("http")) return url;

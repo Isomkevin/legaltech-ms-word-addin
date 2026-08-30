@@ -5,7 +5,7 @@ import { ApiError, errorFromResponse } from "./errors";
 import { isCommunity } from "@/community/edition";
 
 /**
- * Authenticated JSON fetch against the Vaquill AI backend.
+ * Authenticated JSON fetch against the HakiChain AI backend.
  * Attaches the Supabase bearer, and on a 401 does a single silent
  * refresh-and-retry before surfacing an unauthorized error.
  */
@@ -257,7 +257,7 @@ export async function requestBinary(
     const buf = await res.arrayBuffer();
     return {
       base64: arrayBufferToBase64(buf),
-      filename: filenameFromDisposition(res, "vaquill-redlined.docx"),
+      filename: filenameFromDisposition(res, "hakichain-redlined.docx"),
     };
   } catch (e) {
     if ((e as Error).name === "AbortError" && abort.timedOut()) {

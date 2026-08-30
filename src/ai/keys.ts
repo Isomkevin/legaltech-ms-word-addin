@@ -10,7 +10,7 @@ export type { ProviderId };
  * is the standard, accepted trust model for a bring-your-own-key tool. We never
  * write keys to Office document settings, which would travel inside the .docx.
  */
-const PREFIX = "vaquill.byok";
+const PREFIX = "hakichain.byok";
 
 export interface ModelOption {
   id: string;

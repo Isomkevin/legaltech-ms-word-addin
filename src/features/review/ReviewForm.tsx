@@ -221,7 +221,7 @@ export function ReviewForm({
               <a href={`${config.appBase}/playbooks`} target="_blank" rel="noreferrer">
                 Manage playbooks
               </a>{" "}
-              in Vaquill AI.
+              in HakiChain AI.
             </p>
           )}
 

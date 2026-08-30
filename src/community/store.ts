@@ -5,7 +5,7 @@
  * Hand-rolled (no dependency) thin wrapper: one database, one object store per
  * entity keyed by `id`.
  */
-const DB_NAME = "vaquill_community";
+const DB_NAME = "hakichain_community";
 const DB_VERSION = 2;
 export const STORES = ["prompts", "clauses", "playbooks"] as const;
 export type StoreName = (typeof STORES)[number];

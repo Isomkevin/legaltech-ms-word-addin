@@ -26,7 +26,7 @@ import { AttachmentChips } from "@/features/assistant/AttachmentChips";
 import { insertDraftFormatted } from "@/office/richInsert";
 import { JURISDICTIONS, labelOf } from "@/features/review/constants";
 import { getReviewPrefs } from "@/lib/prefs";
-import { SaveToVaquill } from "@/features/integration/SaveToVaquill";
+import { SaveToHakiChain } from "@/features/integration/SaveToHakiChain";
 import { useAppNav } from "@/app/nav";
 import { config } from "@/config";
 import { TransplantView } from "@/features/transplant/TransplantView";
@@ -349,7 +349,7 @@ export function DraftView() {
         {error && <Banner tone="danger">{error}</Banner>}
         {copyNote && <span className="small muted">{copyNote}</span>}
 
-        <SaveToVaquill mode="draft" draft={result} />
+        <SaveToHakiChain mode="draft" draft={result} />
       </div>
     );
   }
@@ -372,7 +372,7 @@ export function DraftView() {
           <a href={`${config.appBase}/drafting`} target="_blank" rel="noreferrer">
             open your saved drafts
           </a>{" "}
-          in Vaquill AI.
+          in HakiChain AI.
         </p>
       </div>
 

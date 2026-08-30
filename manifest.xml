@@ -6,27 +6,27 @@
   xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
   xsi:type="TaskPaneApp">
 
-  <!-- Production manifest. Served from https://word.vaquill.ai -->
+  <!-- Production manifest. Served from https://word.hakichain.com -->
   <Id>f4a9c2e0-7b31-4d8a-9e62-3c5d1a8b6f04</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Vaquill AI</ProviderName>
+  <ProviderName>HakiChain AI</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Vaquill AI for Word" />
+  <DisplayName DefaultValue="HakiChain for Word" />
   <Description DefaultValue="Contract review, playbooks, drafting, and US legal research inside Word. Grounded redlines applied as native tracked changes." />
-  <IconUrl DefaultValue="https://word.vaquill.ai/assets/icon-32.png" />
-  <HighResolutionIconUrl DefaultValue="https://word.vaquill.ai/assets/icon-80.png" />
-  <SupportUrl DefaultValue="https://www.vaquill.ai/support" />
+  <IconUrl DefaultValue="https://word.hakichain.com/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://word.hakichain.com/assets/icon-80.png" />
+  <SupportUrl DefaultValue="https://www.hakichain.com/support" />
 
   <!-- Domains the task pane is allowed to navigate to. -->
   <AppDomains>
-    <AppDomain>https://word.vaquill.ai</AppDomain>
-    <AppDomain>https://api.vaquill.ai</AppDomain>
+    <AppDomain>https://word.hakichain.com</AppDomain>
+    <AppDomain>https://api.hakichain.com</AppDomain>
     <!-- Supabase auth (custom domain) is the start URL of the sign-in dialog
          opened via Office.context.ui.displayDialogAsync; the dialog then
          redirects to the Google OAuth consent page. Both domains must be
          listed here or Office refuses to open the dialog with "The domain of
          the URL is not included in the AppDomains element". -->
-    <AppDomain>https://dbs.vaquill.ai</AppDomain>
+    <AppDomain>https://dbs.hakichain.com</AppDomain>
     <AppDomain>https://accounts.google.com</AppDomain>
   </AppDomains>
 
@@ -43,7 +43,7 @@
   </Requirements>
 
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://word.vaquill.ai/index.html" />
+    <SourceLocation DefaultValue="https://word.hakichain.com/index.html" />
   </DefaultSettings>
 
   <Permissions>ReadWriteDocument</Permissions>
@@ -59,18 +59,18 @@
           </GetStarted>
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
             <OfficeTab id="TabHome">
-              <Group id="Vaquill.Group">
-                <Label resid="Vaquill.Group.Label" />
+              <Group id="HakiChain.Group">
+                <Label resid="HakiChain.Group.Label" />
                 <Icon>
                   <bt:Image size="16" resid="Icon.16" />
                   <bt:Image size="32" resid="Icon.32" />
                   <bt:Image size="80" resid="Icon.80" />
                 </Icon>
-                <Control xsi:type="Button" id="Vaquill.OpenPane">
-                  <Label resid="Vaquill.OpenPane.Label" />
+                <Control xsi:type="Button" id="HakiChain.OpenPane">
+                  <Label resid="HakiChain.OpenPane.Label" />
                   <Supertip>
-                    <Title resid="Vaquill.OpenPane.Label" />
-                    <Description resid="Vaquill.OpenPane.Tip" />
+                    <Title resid="HakiChain.OpenPane.Label" />
+                    <Description resid="HakiChain.OpenPane.Tip" />
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="Icon.16" />
@@ -78,21 +78,21 @@
                     <bt:Image size="80" resid="Icon.80" />
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>Vaquill.Taskpane</TaskpaneId>
+                    <TaskpaneId>HakiChain.Taskpane</TaskpaneId>
                     <SourceLocation resid="Taskpane.Url" />
                   </Action>
                 </Control>
               </Group>
             </OfficeTab>
           </ExtensionPoint>
-          <!-- Right-click a text selection to open Vaquill AI where the cursor is. -->
+          <!-- Right-click a text selection to open HakiChain AI where the cursor is. -->
           <ExtensionPoint xsi:type="ContextMenu">
             <OfficeMenu id="ContextMenuText">
-              <Control xsi:type="Button" id="Vaquill.ContextReview">
-                <Label resid="Vaquill.Context.Label" />
+              <Control xsi:type="Button" id="HakiChain.ContextReview">
+                <Label resid="HakiChain.Context.Label" />
                 <Supertip>
-                  <Title resid="Vaquill.Context.Label" />
-                  <Description resid="Vaquill.OpenPane.Tip" />
+                  <Title resid="HakiChain.Context.Label" />
+                  <Description resid="HakiChain.OpenPane.Tip" />
                 </Supertip>
                 <Icon>
                   <bt:Image size="16" resid="Icon.16" />
@@ -100,7 +100,7 @@
                   <bt:Image size="80" resid="Icon.80" />
                 </Icon>
                 <Action xsi:type="ShowTaskpane">
-                  <TaskpaneId>Vaquill.Taskpane</TaskpaneId>
+                  <TaskpaneId>HakiChain.Taskpane</TaskpaneId>
                   <SourceLocation resid="Taskpane.Url" />
                 </Action>
               </Control>
@@ -111,23 +111,23 @@
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16" DefaultValue="https://word.vaquill.ai/assets/icon-16.png" />
-        <bt:Image id="Icon.32" DefaultValue="https://word.vaquill.ai/assets/icon-32.png" />
-        <bt:Image id="Icon.80" DefaultValue="https://word.vaquill.ai/assets/icon-80.png" />
+        <bt:Image id="Icon.16" DefaultValue="https://word.hakichain.com/assets/icon-16.png" />
+        <bt:Image id="Icon.32" DefaultValue="https://word.hakichain.com/assets/icon-32.png" />
+        <bt:Image id="Icon.80" DefaultValue="https://word.hakichain.com/assets/icon-80.png" />
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://word.vaquill.ai/index.html" />
-        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://www.vaquill.ai/word" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://word.hakichain.com/index.html" />
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://www.hakichain.com/word" />
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GetStarted.Title" DefaultValue="Vaquill AI for Word is ready" />
-        <bt:String id="Vaquill.Group.Label" DefaultValue="Vaquill AI" />
-        <bt:String id="Vaquill.OpenPane.Label" DefaultValue="Open Vaquill AI" />
-        <bt:String id="Vaquill.Context.Label" DefaultValue="Review with Vaquill AI" />
+        <bt:String id="GetStarted.Title" DefaultValue="HakiChain for Word is ready" />
+        <bt:String id="HakiChain.Group.Label" DefaultValue="HakiChain AI" />
+        <bt:String id="HakiChain.OpenPane.Label" DefaultValue="Open HakiChain AI" />
+        <bt:String id="HakiChain.Context.Label" DefaultValue="Review with HakiChain AI" />
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="Open the Vaquill AI pane to review this contract, apply grounded redlines, and draft clauses." />
-        <bt:String id="Vaquill.OpenPane.Tip" DefaultValue="Review the open contract, apply tracked-change redlines, and run drafting and research." />
+        <bt:String id="GetStarted.Description" DefaultValue="Open the HakiChain AI pane to review this contract, apply grounded redlines, and draft clauses." />
+        <bt:String id="HakiChain.OpenPane.Tip" DefaultValue="Review the open contract, apply tracked-change redlines, and run drafting and research." />
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

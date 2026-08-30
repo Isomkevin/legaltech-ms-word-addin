@@ -13,7 +13,7 @@ import "./quota-banner.css";
  */
 
 const THRESHOLD = 80;
-const DISMISS_KEY = "vaquill.quotaBannerDismissed";
+const DISMISS_KEY = "hakichain.quotaBannerDismissed";
 
 const METRICS: { key: keyof QuotaSnapshot; noun: string }[] = [
   { key: "messages", noun: "messages" },

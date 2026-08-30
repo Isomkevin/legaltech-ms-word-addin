@@ -11,7 +11,7 @@
  *
  * A null active org means "let the backend resolve the default" (no header).
  */
-const STORAGE_KEY = "vaquill.activeOrgId";
+const STORAGE_KEY = "hakichain.activeOrgId";
 
 type Listener = (orgId: string | null) => void;
 

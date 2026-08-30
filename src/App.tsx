@@ -100,7 +100,7 @@ function AppShell() {
         if (!alive) return;
         if (me.initialized === false) {
           setAuthNotice(
-            "You do not have a Vaquill AI account yet. Create one on the web, then sign in here.",
+            "You do not have a HakiChain AI account yet. Create one on the web, then sign in here.",
           );
           clearSession(); // -> subscribe fires user=null -> back to the login screen
         } else {
@@ -153,18 +153,18 @@ function AppShell() {
       ) : (
         <header className="appbar">
           <a
-            href="https://www.vaquill.ai"
+            href="https://www.hakichain.com"
             target="_blank"
             rel="noreferrer"
             className="appbar__brand"
-            title="Vaquill AI"
-            aria-label="Open the Vaquill AI website in your browser"
+            title="HakiChain AI"
+            aria-label="Open the HakiChain AI website in your browser"
           >
             <img
               src="/assets/icon-80.png"
               width={22}
               height={22}
-              alt="Vaquill AI"
+              alt="HakiChain AI"
               className="appbar__mark"
             />
           </a>

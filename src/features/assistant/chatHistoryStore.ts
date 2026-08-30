@@ -18,7 +18,7 @@ export interface Conversation {
   updatedAt: number;
 }
 
-const KEY = "vaquill.chatHistory";
+const KEY = "hakichain.chatHistory";
 const MAX = 30; // keep the most recent; older conversations are trimmed.
 // Cap each stored message body so a few long transcripts can't blow the ~5MB
 // localStorage quota (which would silently stop history persisting).

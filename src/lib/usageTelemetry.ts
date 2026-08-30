@@ -1,6 +1,6 @@
 /**
  * Anonymous BYOK usage ping: the ONLY way to count unique bring-your-own-key
- * users, because they run on their own AI key with no Vaquill account and never
+ * users, because they run on their own AI key with no HakiChain account and never
  * authenticate to our backend (every AI call goes through the local shim). So
  * there is no server-side identity to count them by.
  *
@@ -20,9 +20,9 @@
 import { config } from "@/config";
 import { isBuildCommunity, isCommunity } from "@/community/edition";
 
-const ANON_ID_KEY = "vaquill.byok.anonId";
-const OPT_OUT_KEY = "vaquill.byok.usageOptOut";
-const LAST_PING_KEY = "vaquill.byok.lastPingAt";
+const ANON_ID_KEY = "hakichain.byok.anonId";
+const OPT_OUT_KEY = "hakichain.byok.usageOptOut";
+const LAST_PING_KEY = "hakichain.byok.lastPingAt";
 const PING_INTERVAL_MS = 24 * 60 * 60 * 1000; // once a day is enough to count uniques
 
 // Session fallback for panes whose localStorage is blocked (Office storage

@@ -1,5 +1,5 @@
-Vaquill AI for Word
-Copyright 2026 Vaquill AI
+HakiChain for Word
+Copyright 2026 HakiChain AI
 
 This product includes software developed as a Microsoft Word task-pane add-in.
 
@@ -13,5 +13,5 @@ Third-party components:
   Licensed under the Apache License, Version 2.0.
   Core diff algorithm; a transitive dependency of office-word-diff.
 
-This add-in is a thin client. It requires the Vaquill AI backend to function;
+This add-in is a thin client. It requires the HakiChain AI backend to function;
 it does not perform contract analysis, retrieval, or generation on its own.

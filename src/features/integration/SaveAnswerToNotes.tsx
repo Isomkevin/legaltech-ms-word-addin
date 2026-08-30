@@ -7,7 +7,7 @@ import { isCommunity } from "@/community/edition";
 import { UpgradeLink } from "@/ui/UpgradeGate";
 
 /**
- * Save an assistant answer as a note on a Vaquill AI client. Lazy: it loads
+ * Save an assistant answer as a note on a HakiChain AI client. Lazy: it loads
  * clients only when expanded, and hides gracefully when there are none. Keeps the
  * research done in Word from being lost to the local session.
  *
@@ -68,7 +68,7 @@ export function SaveAnswerToNotes({
     setBusy(true);
     setError(null);
     try {
-      await createClientNote(clientId, { content, title: "Note from Vaquill AI for Word" });
+      await createClientNote(clientId, { content, title: "Note from HakiChain for Word" });
       setDone(true);
       setOpen(false);
     } catch (e) {
@@ -78,7 +78,7 @@ export function SaveAnswerToNotes({
     }
   }
 
-  // Saving to a client note needs a hosted Vaquill AI account (clients live in
+  // Saving to a client note needs a hosted HakiChain AI account (clients live in
   // the platform). In the community/BYOK edition show a lock instead of a button
   // that would only ever report "no clients". Placed after the hooks so hook
   // order stays stable (rules-of-hooks).

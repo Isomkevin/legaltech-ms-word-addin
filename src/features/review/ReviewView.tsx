@@ -19,7 +19,7 @@ import { ReviewActionBar } from "./ReviewActionBar";
 import { SetupSummary } from "./SetupSummary";
 import { DocumentTools } from "./DocumentTools";
 import { OutlinePanel } from "./OutlinePanel";
-import { SaveToVaquill } from "@/features/integration/SaveToVaquill";
+import { SaveToHakiChain } from "@/features/integration/SaveToHakiChain";
 import { RecordGovernance } from "@/features/governance/RecordGovernance";
 import { NdaTriageView } from "@/features/nda/NdaTriageView";
 import { ComplianceView } from "@/features/compliance/ComplianceView";
@@ -156,7 +156,7 @@ export function ReviewView({
   const [snapshot, setSnapshot] = useState<ReviewSnapshot | null>(null);
   const [dismissedResume, setDismissedResume] = useState(false);
   const [resumeChanged, setResumeChanged] = useState(false);
-  // The draft id SaveToVaquill yields once the reviewed contract is saved.
+  // The draft id SaveToHakiChain yields once the reviewed contract is saved.
   // When present, the governance sign-off runs through the backend's
   // authority-enforced approval instead of the in-file attestation.
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
@@ -438,7 +438,7 @@ export function ReviewView({
               />
               <OutlinePanel />
               {redlines.length > 0 && <DocumentTools redlines={redlines} />}
-              <SaveToVaquill
+              <SaveToHakiChain
                 mode="review"
                 redlines={redlines}
                 defaultMatterId={params?.matterId}
@@ -535,7 +535,7 @@ export function ReviewView({
     <div className="stack review">
       <ViewHeader
         title="Review this contract"
-        info="Vaquill AI suggests grounded edits from your side and applies them as native tracked changes. A green Verified badge means we found the exact clause in your document, so it is safe to auto-apply; amber means verify it yourself. The sign-off gate flags when a deal needs manager, partner, or GC approval before you send."
+        info="HakiChain AI suggests grounded edits from your side and applies them as native tracked changes. A green Verified badge means we found the exact clause in your document, so it is safe to auto-apply; amber means verify it yourself. The sign-off gate flags when a deal needs manager, partner, or GC approval before you send."
         subtitle="Grounded redlines from your side, applied as native tracked changes."
       />
 

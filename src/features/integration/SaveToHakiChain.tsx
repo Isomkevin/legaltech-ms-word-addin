@@ -28,7 +28,7 @@ type Props = (
 ) & {
   defaultMatterId?: string;
   /**
-   * Fired after the contract is saved to Vaquill AI and a draft id is known
+   * Fired after the contract is saved to HakiChain AI and a draft id is known
    * (or null if the save returned none). Lets a parent thread the id into the
    * governance sign-off so it can run the backend's authority-enforced approval.
    */
@@ -53,14 +53,14 @@ function mapRedlines(redlines: RedlineSuggestion[]): ImportRedline[] {
 }
 
 /**
- * Save the reviewed contract or generated draft back into Vaquill AI: as an
+ * Save the reviewed contract or generated draft back into HakiChain AI: as an
  * editable draft (with redlines rendered as tracked changes + comment threads),
  * or as a reusable template. Optionally scoped to a matter.
  */
-export function SaveToVaquill(props: Props) {
-  // Saving back into the hosted Vaquill AI product is a hosted-plan feature. In the
+export function SaveToHakiChain(props: Props) {
+  // Saving back into the hosted HakiChain AI product is a hosted-plan feature. In the
   // community edition, show a locked upsell instead of hiding it.
-  if (isCommunity()) return <UpgradeLink label="Save to Vaquill AI (hosted)" />;
+  if (isCommunity()) return <UpgradeLink label="Save to HakiChain AI (hosted)" />;
   // Matter is the user's standing context, set once in Settings (no per-save
   // picker). An explicit defaultMatterId prop still wins when a caller passes one.
   const matterId = props.defaultMatterId ?? getReviewPrefs().matterId ?? "";
@@ -85,7 +85,7 @@ export function SaveToVaquill(props: Props) {
         setDraftId(id);
         props.onSaved?.(id);
         setSaved({
-          label: matterId ? "Filed under the matter." : "Open your draft in Vaquill AI.",
+          label: matterId ? "Filed under the matter." : "Open your draft in HakiChain AI.",
           url: `${config.appBase}/drafting/${id}`,
         });
         return;
@@ -104,7 +104,7 @@ export function SaveToVaquill(props: Props) {
       setDraftId(ref.draftId ?? null);
       props.onSaved?.(ref.draftId ?? null);
       setSaved({
-        label: "Saved to Vaquill AI with redlines.",
+        label: "Saved to HakiChain AI with redlines.",
         url: ref.draftId ? `${config.appBase}/drafting/${ref.draftId}` : undefined,
       });
     } catch (e) {
@@ -180,14 +180,14 @@ export function SaveToVaquill(props: Props) {
   const showVendor = props.mode === "review" && looksLikeDpa(props.contractType) && !!draftId;
   const draftLabel =
     props.mode === "review"
-      ? "Open in Vaquill AI (with redlines)"
+      ? "Open in HakiChain AI (with redlines)"
       : matterId
         ? "File under matter"
-        : "Open in Vaquill AI drafting";
+        : "Open in HakiChain AI drafting";
 
   return (
     <div className="card doc-tools">
-      <h2 className="small muted" style={{ margin: 0 }}>Save to Vaquill AI</h2>
+      <h2 className="small muted" style={{ margin: 0 }}>Save to HakiChain AI</h2>
       <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
         <Button variant="primary" size="sm" onClick={saveDraft} loading={busy === "draft"} disabled={!!busy}>
           {draftLabel}

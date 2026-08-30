@@ -16,9 +16,9 @@
  */
 
 // Fixed public URLs, selected by build mode. No env var needed.
-const apiBase = import.meta.env.PROD ? "https://api.vaquill.ai" : "http://localhost:8000";
-// The Vaquill AI web app, for deep-linking back to saved drafts, matters, etc.
-const appBase = import.meta.env.PROD ? "https://app.vaquill.ai" : "http://localhost:3000";
+const apiBase = import.meta.env.PROD ? "https://api.hakichain.com" : "http://localhost:8000";
+// The HakiChain AI web app, for deep-linking back to saved drafts, matters, etc.
+const appBase = import.meta.env.PROD ? "https://app.hakichain.com" : "http://localhost:3000";
 
 // Build version, injected by Vite (see vite.config.ts `define`). Reported in the
 // anonymous BYOK usage ping so we can see which build is in use.
@@ -51,6 +51,6 @@ export function assertConfigured(): void {
     : (["supabaseUrl", "supabaseAnonKey", "addinOrigin"] as const);
   const missing = required.filter((k) => !config[k]);
   if (missing.length) {
-    throw new Error(`Vaquill AI add-in misconfigured. Missing: ${missing.join(", ")}`);
+    throw new Error(`HakiChain AI add-in misconfigured. Missing: ${missing.join(", ")}`);
   }
 }

@@ -93,7 +93,7 @@ export async function communityRequestForm<T>(path: string, form: FormData): Pro
   throw new ApiError(
     "unknown",
     0,
-    "This feature needs a Vaquill AI account and is not available in the community edition.",
+    "This feature needs a HakiChain AI account and is not available in the community edition.",
     "REQUIRES_ACCOUNT",
   );
 }

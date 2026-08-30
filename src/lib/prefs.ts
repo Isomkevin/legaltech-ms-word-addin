@@ -13,7 +13,7 @@
  * get / set / subscribe and a startup init. Values are treated immutably; set()
  * builds a new object rather than mutating the current one.
  */
-const STORAGE_KEY = "vaquill.reviewPrefs";
+const STORAGE_KEY = "hakichain.reviewPrefs";
 
 export interface ReviewPrefs {
   /** Matter id to ground new work in, or "" for none. */

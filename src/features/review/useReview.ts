@@ -33,7 +33,7 @@ export interface RunParams {
   reviewInstructions?: string;
   /** Include footnotes and headers/footers in the whole-document read. */
   includeExtras?: boolean;
-  /** Scope this review to a Vaquill AI matter (carried through to saving). */
+  /** Scope this review to a HakiChain AI matter (carried through to saving). */
   matterId?: string;
   /** Markup aggressiveness (light / standard / firm). */
   markupLevel?: "light" | "standard" | "firm";
@@ -244,7 +244,7 @@ export function useReview() {
       // review already (a Deep review can outlast a shaky connection). If we
       // captured the analysis id from the init event, recover the saved result
       // rather than discarding completed, billed work with a "Cannot reach
-      // Vaquill" error.
+      // HakiChain" error.
       if (analysisId && !controller.signal.aborted) {
         const recovered = await fetchSavedReview(analysisId);
         if (recovered) {

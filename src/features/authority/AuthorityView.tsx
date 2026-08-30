@@ -124,8 +124,8 @@ export function AuthorityView() {
       <div className="stack authority-view">
         <ViewHeader
         title="Authority check"
-        info="Checks every case and statute citation in the document against Vaquill AI's US corpus. Found means a real matching authority exists, not that it is still good law, so confirm its current treatment before relying on it. No match can mean a hallucinated, mis-typed, or unreported citation, so confirm it yourself before you rely on it or file."
-        subtitle="Verify every case and statute citation in this document against Vaquill AI's US corpus. Catch citations that do not resolve to a real authority before you file or send."
+        info="Checks every case and statute citation in the document against HakiChain AI's US corpus. Found means a real matching authority exists, not that it is still good law, so confirm its current treatment before relying on it. No match can mean a hallucinated, mis-typed, or unreported citation, so confirm it yourself before you rely on it or file."
+        subtitle="Verify every case and statute citation in this document against HakiChain AI's US corpus. Catch citations that do not resolve to a real authority before you file or send."
       />
         {citationAuthorityAvailable() ? (
           <Button variant="primary" className="btn--cta" onClick={run}>
@@ -134,7 +134,7 @@ export function AuthorityView() {
         ) : (
           <UpgradeGate title="Statute & good-law checks are on the hosted plan">
             To check whether cited cases exist, add your free CourtListener API token in Settings.
-            Full statute verification and good-law treatment are part of the Vaquill AI hosted plan.
+            Full statute verification and good-law treatment are part of the HakiChain AI hosted plan.
           </UpgradeGate>
         )}
       </div>

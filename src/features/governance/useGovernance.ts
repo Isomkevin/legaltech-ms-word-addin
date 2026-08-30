@@ -75,7 +75,7 @@ export function useGovernance() {
         const draftId = ledger.draftId;
         const level = ledger.requiredLevel;
 
-        // Enforced path: when the reviewed contract was saved to Vaquill AI
+        // Enforced path: when the reviewed contract was saved to HakiChain AI
         // (draft id present) and a level is required, run the sign-off through
         // the backend's authority-enforced approval. A 403 is a HARD block, and
         // the server returns the verified role we stamp into the ledger.

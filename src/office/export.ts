@@ -2,8 +2,8 @@ import { runWord } from "./run";
 
 /**
  * Replace the open document with the server-generated tracked-changes .docx.
- * Used for the "Accept via Vaquill AI" and "Accept all" paths, where authorship
- * is stamped "Vaquill AI Contract Review" and revisions are written natively so
+ * Used for the "Accept via HakiChain AI" and "Accept all" paths, where authorship
+ * is stamped "HakiChain AI Contract Review" and revisions are written natively so
  * the recipient can Accept/Reject in Word's Review tab.
  */
 export async function replaceDocumentWithDocx(base64: string): Promise<void> {

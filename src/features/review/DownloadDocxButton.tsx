@@ -6,7 +6,7 @@ import { isCommunity } from "@/community/edition";
  * Download a redlined .docx.
  *
  * Hosted: the corrected copy is authored server-side (native tracked changes,
- * stamped "Vaquill AI Contract Review") and left as a separate file, so the open
+ * stamped "HakiChain AI Contract Review") and left as a separate file, so the open
  * document is untouched.
  *
  * Community/BYOK: there is no backend, so the same result is produced on-device

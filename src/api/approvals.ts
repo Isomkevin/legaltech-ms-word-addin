@@ -13,7 +13,7 @@ import { ApiError } from "./errors";
  * the required approval level. A 403 is therefore a hard, visible block, and the
  * 201 response carries the server-verified `decidedByRole`.
  *
- * Only usable when the reviewed contract has been saved to Vaquill AI (which
+ * Only usable when the reviewed contract has been saved to HakiChain AI (which
  * yields a draft id). Without a draft id, callers fall back to the in-file
  * attestation.
  */
@@ -68,7 +68,7 @@ export class InsufficientAuthorityError extends Error {
   constructor(approvalLevel: ApprovalLevel, message?: string) {
     super(
       message ||
-        `Your account does not have ${approvalLevel} authority to sign this off. Ask someone with the required authority to approve it in Vaquill AI.`,
+        `Your account does not have ${approvalLevel} authority to sign this off. Ask someone with the required authority to approve it in HakiChain AI.`,
     );
     this.name = "InsufficientAuthorityError";
     this.approvalLevel = approvalLevel;

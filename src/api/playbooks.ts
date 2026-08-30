@@ -2,7 +2,7 @@ import { request, requestForm } from "./http";
 
 /**
  * Negotiation playbooks. Selecting one drives the review to the firm's
- * positions, fallback ladder, and deal-breakers instead of Vaquill AI's
+ * positions, fallback ladder, and deal-breakers instead of HakiChain AI's
  * default positions. This is the playbook-driven review.
  * Source: GET /api/v1/legal-tools/playbooks.
  */

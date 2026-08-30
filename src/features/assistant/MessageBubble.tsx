@@ -100,7 +100,7 @@ function AssistantActions({ message }: { message: AssistantMessage }) {
         Insert
       </button>
       {/* Cross-link: keep research done in Word from being lost to the local
-          session by saving the answer as a note on a Vaquill AI client. */}
+          session by saving the answer as a note on a HakiChain AI client. */}
       <SaveAnswerToNotes content={message.content} />
       {note && <span className="small muted msg__actions-note">{note}</span>}
     </div>
@@ -307,7 +307,7 @@ export function MessageBubble({
     <div className="msg msg--assistant" ref={bodyRef}>
       <div className="msg__ident">
         <img src="/assets/icon-80.png" className="msg__ident-avatar" alt="" aria-hidden />
-        <span className="msg__ident-name">Vaquill AI</span>
+        <span className="msg__ident-name">HakiChain AI</span>
       </div>
       {message.content && (
         <div className="msg__body">

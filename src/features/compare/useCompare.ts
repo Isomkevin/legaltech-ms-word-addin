@@ -133,7 +133,7 @@ export function useCompare() {
             original,
             revised,
             title: `Compare: ${doc.filename}`,
-            authorLabel: "Vaquill AI Compare",
+            authorLabel: "HakiChain AI Compare",
           },
           signal,
         );

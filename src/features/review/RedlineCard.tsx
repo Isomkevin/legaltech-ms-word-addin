@@ -280,7 +280,7 @@ export function RedlineCard({
     try {
       // Prefer the bookmark anchor if one was placed for this clause: it survives
       // edits that would defeat a text search. Falls back to searching the text.
-      if (await goToBookmark(`Vaquill_clause_${index + 1}`)) return;
+      if (await goToBookmark(`HakiChain_clause_${index + 1}`)) return;
       const found = await selectClauseInDocument(active.currentLanguage);
       if (!found) setNote("Could not locate this clause in the document.");
     } catch (e) {

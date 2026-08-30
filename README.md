@@ -1,11 +1,11 @@
-# Vaquill AI for Word
+# HakiChain for Word
 
-![Vaquill AI running in Microsoft Word, reviewing a contract and applying a grounded redline as a tracked change](assets/word-promo.png)
+![HakiChain running in Microsoft Word, reviewing a contract and applying a grounded redline as a tracked change](assets/word-promo.png)
 
-A Microsoft Word add-in (task pane) that brings Vaquill AI contract review, grounded redlining, drafting, and US legal research into Word.
+A Microsoft Word add-in (task pane) that brings HakiChain AI contract review, grounded redlining, drafting, and US legal research into Word.
 
 It comes in two builds.
-The **hosted** build reads the open document through the Office JavaScript API, calls the Vaquill AI backend for the legal intelligence, and applies the results back into the document as native Word tracked changes, comments, and content controls.
+The **hosted** build reads the open document through the Office JavaScript API, calls the HakiChain AI backend for the legal intelligence, and applies the results back into the document as native Word tracked changes, comments, and content controls.
 The **community** build runs standalone on your own AI key (OpenAI, Anthropic, Google Gemini, Groq, Azure OpenAI, or a fully local Ollama server), with no hosted backend.
 
 Everything operates on the document you already have open in Word.
@@ -14,13 +14,13 @@ There is no separate upload step: the open document is the subject.
 > **Community edition (bring-your-own-key).**
 > A standalone, self-hostable **community build that runs on your own AI key** is available.
 > It supports **OpenAI, Anthropic, Google Gemini, Groq, Azure OpenAI, and local Ollama** (Ollama needs no key and keeps everything on your machine).
-> It runs the add-in against your own provider, with no hosted Vaquill AI backend.
+> It runs the add-in against your own provider, with no hosted HakiChain AI backend.
 > To run it, see [Run it yourself](#run-it-yourself-community-edition) below.
 > The default (cloud) build in this repo still targets the hosted backend (see [Backend requirement](#backend-requirement)).
 
 ## What works in each edition
 
-| Capability | Vaquill AI (hosted) | Community (your own key) |
+| Capability | HakiChain AI (hosted) | Community (your own key) |
 | --- | --- | --- |
 | Assistant chat over the open document | Yes, grounded in the legal corpus, the web, and your matter files | Yes, grounded in the open document |
 | Rewrite, explain, plain-English, risk, compliance, and guideline checks | Yes | Yes |
@@ -33,16 +33,16 @@ There is no separate upload step: the open document is the subject.
 | Clause transplant, fill-from-reference, attach a document | Yes (PDF, DOCX, and more) | Yes (DOCX, TXT, MD) |
 | Prompt and clause libraries | Yes, synced to your account | Yes, saved on your device |
 | Document tools (Proper Format, defined terms, cross-references, reading navigator, deal cockpit, figures, send-ready, clean copy, tracked-changes review) | Yes | Yes, identical and fully local |
-| Case-law existence check (does a cited case exist) | Yes, against the Vaquill AI corpus | Yes, with your own free CourtListener token |
+| Case-law existence check (does a cited case exist) | Yes, against the HakiChain AI corpus | Yes, with your own free CourtListener token |
 | Good-law / treatment signal (is a case still good law) | Yes | No |
 | Statute verification and legal research | Yes | No |
 | Redlined .docx export | Yes, authored (branded author, server OOXML) | Yes, on-device (apply all, then download the tracked-changes copy) |
 | Document compare (redline against a reference) | Yes, any format + hidden-revision detector | Yes, on-device text compare (DOCX, TXT, MD) |
 | Save work to matters, vendors, or the web app | Yes | No |
-| AI provider | Managed by Vaquill AI | Your own key: OpenAI, Anthropic, Gemini, Groq, Azure OpenAI, or local Ollama |
-| Where your text is sent | Vaquill AI's backend | Only to the provider you choose (nothing leaves your machine with local Ollama) |
+| AI provider | Managed by HakiChain AI | Your own key: OpenAI, Anthropic, Gemini, Groq, Azure OpenAI, or local Ollama |
+| Where your text is sent | HakiChain AI's backend | Only to the provider you choose (nothing leaves your machine with local Ollama) |
 | Hosting | Nothing to run, we host it | You run it, on your machine or your own server |
-| Account | Vaquill AI account | No account, just your key |
+| Account | HakiChain AI account | No account, just your key |
 | Cost | Subscription | You pay your AI provider directly |
 
 ## Roadmap
@@ -62,11 +62,11 @@ If something here matters to you, tell us and we will prioritize with real usage
 
 - Watch or star this repository to get notified on each release.
 - Open a GitHub issue to request a feature or tell us what to build next.
-- For enterprise features (SSO, SCIM, DMS, data residency), early access, or timelines, email us at contact@vaquill.ai.
+- For enterprise features (SSO, SCIM, DMS, data residency), early access, or timelines, email us at contact@hakichain.com.
 
 ## Run it yourself (community edition)
 
-The community edition runs the add-in on your own AI key, with no Vaquill AI backend.
+The community edition runs the add-in on your own AI key, with no HakiChain AI backend.
 Your documents and prompts go only to the AI provider you choose (or nowhere off your machine, with local Ollama).
 It works on Word for Windows, Word for Mac, and Word on the web.
 
@@ -82,8 +82,8 @@ It works on Word for Windows, Word for Mac, and Word on the web.
 Then download the code:
 
 ```bash
-git clone https://github.com/Vaquill-AI/ms-word-addin.git
-cd ms-word-addin
+git clone https://github.com/Isomkevin/legaltech-ms-word-addin.git
+cd legaltech-ms-word-addin
 npm install
 ```
 
@@ -103,13 +103,13 @@ npm run dev:community
 
 **3. Load it into Word** by sideloading `manifest.localhost.xml`. Do the part for your version of Word:
 
-For a step-by-step guide with screenshots, see https://www.vaquill.ai/word/sideload.
+For a step-by-step guide with screenshots, see https://www.hakichain.com/word/sideload.
 
 - **Word on the web:** open a document, click Add-ins (or Insert, then Add-ins), click "Upload My Add-in", and choose `manifest.localhost.xml`.
-- **Word on Mac:** copy `manifest.localhost.xml` into `~/Library/Containers/com.microsoft.Word/Data/Documents/wef` (create the `wef` folder if it is missing), quit and reopen Word, then click Add-ins, My Add-ins, and pick Vaquill AI under Developer Add-ins.
-- **Word on Windows:** put `manifest.localhost.xml` in a folder and share the folder with yourself (right-click, Properties, Sharing). In Word go to File, Options, Trust Center, Trust Center Settings, Trusted Add-in Catalogs, add the folder's network path, tick "Show in Menu", reopen Word, and pick Vaquill AI from the Shared Folder tab.
+- **Word on Mac:** copy `manifest.localhost.xml` into `~/Library/Containers/com.microsoft.Word/Data/Documents/wef` (create the `wef` folder if it is missing), quit and reopen Word, then click Add-ins, My Add-ins, and pick HakiChain AI under Developer Add-ins.
+- **Word on Windows:** put `manifest.localhost.xml` in a folder and share the folder with yourself (right-click, Properties, Sharing). In Word go to File, Options, Trust Center, Trust Center Settings, Trusted Add-in Catalogs, add the folder's network path, tick "Show in Menu", reopen Word, and pick HakiChain AI from the Shared Folder tab.
 
-**4. Open it.** In Word, click "Open Vaquill AI". The first time, choose your provider (OpenAI, Anthropic, Gemini, Groq, Azure, or local Ollama), enter your key and model (Ollama needs no key; Azure also takes its endpoint URL), click Test, then Save. Your key stays on your device and is sent only to that provider.
+**4. Open it.** In Word, click "Open HakiChain AI". The first time, choose your provider (OpenAI, Anthropic, Gemini, Groq, Azure, or local Ollama), enter your key and model (Ollama needs no key; Azure also takes its endpoint URL), click Test, then Save. Your key stays on your device and is sent only to that provider.
 
 #### Walkthrough (Word on the web)
 
@@ -131,9 +131,9 @@ Choose `manifest.localhost.xml`:
 
 ![Choose the manifest file](assets/screenshots/install-4-choose-manifest.webp)
 
-Open Vaquill AI from the ribbon:
+Open HakiChain AI from the ribbon:
 
-![Vaquill AI first screen](assets/screenshots/install-5-sign-in.webp)
+![HakiChain AI first screen](assets/screenshots/install-5-sign-in.webp)
 
 Choose your provider (OpenAI, Anthropic, Gemini, Groq, Azure, or local Ollama) and enter your own key:
 
@@ -145,7 +145,7 @@ Use this when a team should have it without anyone keeping a terminal open.
 It needs no server or database: the community build is just static files, so any static host with HTTPS works.
 
 1. Build it with `npm run build:community`. This creates a `dist` folder, which is the whole app as plain files.
-2. Serve the contents of `dist` over HTTPS on an address you control, for example `https://vaquill.yourfirm.com`. Any static hosting works, and HTTPS is required.
+2. Serve the contents of `dist` over HTTPS on an address you control, for example `https://hakichain.yourfirm.com`. Any static hosting works, and HTTPS is required.
 3. Copy `manifest.community.xml`, replace every `YOUR-DOMAIN.example.com` with your address, and replace the `<Id>` line with a new unique id (create one at https://guidgenerator.com).
 4. Give that manifest to each person to sideload with the steps above. Each person adds their own key.
 
@@ -153,12 +153,12 @@ A plain static host imposes no restriction on which AI provider users pick. If y
 
 For a step-by-step version with the easiest free HTTPS hosts (Cloudflare Pages, Netlify, Vercel, GitHub Pages), see [DEPLOY.md](DEPLOY.md#self-hosting-the-community-edition-bring-your-own-key).
 
-### What it can do, and what needs a Vaquill AI account
+### What it can do, and what needs a HakiChain AI account
 
 The comparison table above lists this in full.
 In short, these work with just your key: the assistant, drafting, contract review and redlines, playbooks, NDA triage, the prompt and clause libraries, and all the document tools.
 Document compare and a redlined-`.docx` export also work in the community edition, on-device (a text compare of DOCX/TXT/MD, and an apply-all-then-download of the tracked-changes copy).
-These need a Vaquill AI account: statute verification, good-law treatment, the authored server-side tracked-changes export (branded author), the compare hidden-revision detector, and saving to the hosted product.
+These need a HakiChain AI account: statute verification, good-law treatment, the authored server-side tracked-changes export (branded author), the compare hidden-revision detector, and saving to the hosted product.
 Case-law existence checking works if you add your own free CourtListener token in Settings (get one at https://www.courtlistener.com/help/api/rest/).
 
 ### Updating and troubleshooting
@@ -167,7 +167,7 @@ To update, run `git pull` then `npm install`, and start it again (or rebuild `di
 
 - Pane is blank or will not load: make sure `npm run dev:community` is still running, and that you ran `npx office-addin-dev-certs install`.
 - Word will not load the add-in: close Word completely and reopen it after sideloading.
-- A feature says it needs a Vaquill AI account: that feature uses Vaquill AI's hosted data and is not in the community edition.
+- A feature says it needs a HakiChain AI account: that feature uses HakiChain AI's hosted data and is not in the community edition.
 - Attaching a PDF does not work: this edition reads `.docx`, `.txt`, and `.md`; save a PDF as `.docx` first.
 
 ---
@@ -249,7 +249,7 @@ Once the add-in is loaded, it opens on the **Assistant** tab.
 
 - A Microsoft 365 account and Word (Windows desktop, Mac desktop, or Word on the web).
 - Office.js requirement floor **WordApi 1.6**.
-- The **Vaquill AI backend** (not included; see below), for the hosted build only. The community edition removes this: bring your own key, no backend.
+- The ** backend** (not included; see below), for the hosted build only. The community edition removes this: bring your own key, no backend.
 
 ## Getting started (development)
 
@@ -277,8 +277,8 @@ Deployment is documented in [DEPLOY.md](DEPLOY.md): self-hosting the community b
 
 ## Backend requirement
 
-The hosted add-in requires the Vaquill AI backend.
-The only backend change needed to run it is CORS: add the add-in origin (`https://word.vaquill.ai`, plus `https://localhost:3000` for dev) to the backend's allowed origins.
+The hosted add-in requires the HakiChain AI backend.
+The only backend change needed to run it is CORS: add the add-in origin (`https://word.hakichain.com`, plus `https://localhost:3000` for dev) to the backend's allowed origins.
 Everything else reuses existing endpoints.
 
 The **community edition** lifts this requirement: bring your own API key, with no hosted dependency. See [Run it yourself](#run-it-yourself-community-edition).
@@ -287,11 +287,11 @@ The **community edition** lifts this requirement: bring your own API key, with n
 
 ```text
 Word (desktop / Mac / web)
-  task pane (word.vaquill.ai)  --Office.js-->  the open document
+  task pane (word.hakichain.com)  --Office.js-->  the open document
         |
         |  Supabase JWT (Bearer) + SSE
         v
-  Vaquill AI backend (api.vaquill.ai)   [required today; BYOK in the community edition]
+  HakiChain AI backend (api.hakichain.com)   [required today; BYOK in the community edition]
 ```
 
 ## Tech stack

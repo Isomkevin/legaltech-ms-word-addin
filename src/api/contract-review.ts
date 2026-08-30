@@ -114,7 +114,7 @@ export async function streamContractReview(
  * dropped (network stall / half-open socket) AFTER the server had finished and
  * persisted it. The `init` event gives us the id up front, so on a transport
  * error we can pull the completed, saved result instead of discarding the work
- * with a "Cannot reach Vaquill" error. The saved `result` column is the SAME
+ * with a "Cannot reach HakiChain" error. The saved `result` column is the SAME
  * camelCase shape as the streamed result (both are model_dump(by_alias=True)),
  * so it maps straight onto ContractReviewResponse. Returns null if the analysis
  * is missing, still in flight, or holds no usable redline set.
@@ -228,7 +228,7 @@ export async function streamClauseFix(
 /**
  * Request the authoritative tracked-changes .docx for the accepted redlines.
  * The endpoint returns raw .docx bytes, base64-encoded here for Office.js
- * insertFileFromBase64. Authorship is stamped "Vaquill AI Contract Review"
+ * insertFileFromBase64. Authorship is stamped "HakiChain AI Contract Review"
  * server-side, which the in-pane apply path cannot do (Office.js cannot set a
  * tracked-change author).
  */

@@ -90,7 +90,7 @@ export function LoginView({ notice }: { notice?: string | null } = {}) {
     <div className="login">
       <img src="/assets/logo-512.png" width={64} height={64} alt="" className="login__mark" />
       <div className="stack" style={{ gap: 4, alignItems: "center" }}>
-        <h1 className="login__title">Vaquill AI for Word</h1>
+        <h1 className="login__title">HakiChain for Word</h1>
         <p className="login__sub small">
           Review the open contract, apply grounded redlines as tracked changes, and draft clauses
           without leaving Word.
@@ -102,7 +102,7 @@ export function LoginView({ notice }: { notice?: string | null } = {}) {
         value={tab}
         onChange={setTab}
         options={[
-          { value: "cloud", label: "Vaquill AI account" },
+          { value: "cloud", label: "HakiChain AI account" },
           { value: "byok", label: "Bring your own key" },
         ]}
       />
@@ -156,7 +156,7 @@ export function LoginView({ notice }: { notice?: string | null } = {}) {
           </div>
 
           <p className="login__register small muted">
-            New to Vaquill AI?{" "}
+            New to HakiChain AI?{" "}
             <button type="button" className="linkaction" onClick={openRegister} disabled={disabled}>
               Create an account
             </button>

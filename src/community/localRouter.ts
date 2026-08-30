@@ -22,7 +22,7 @@ import { runJson } from "./llm";
 import { del, getAll, put } from "./store";
 
 /**
- * Community request shim. Replaces `fetch(api.vaquill.ai)` for the JSON API when
+ * Community request shim. Replaces `fetch(api.hakichain.com)` for the JSON API when
  * the build is the community edition. It matches the backend path + method to a
  * local handler that either runs the user's provider (LLM features) or reads/writes
  * IndexedDB (library CRUD), returning the SAME shape the backend would, so the
@@ -30,7 +30,7 @@ import { del, getAll, put } from "./store";
  *
  * Anything not implemented here throws a REQUIRES_ACCOUNT error, which the UI
  * already renders as a friendly message. That is the default gate: a feature that
- * needs Vaquill AI's hosted data or account says so instead of failing oddly.
+ * needs HakiChain AI's hosted data or account says so instead of failing oddly.
  */
 
 interface StoredPrompt {
@@ -93,7 +93,7 @@ function requiresAccount(): never {
   throw new ApiError(
     "unknown",
     0,
-    "This feature needs a Vaquill AI account and is not available in the community edition.",
+    "This feature needs a HakiChain AI account and is not available in the community edition.",
     "REQUIRES_ACCOUNT",
   );
 }

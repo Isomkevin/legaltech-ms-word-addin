@@ -10,7 +10,7 @@ import { ReviewSummary } from "./features/review/ReviewSummary";
 import { RedlineCard } from "./features/review/RedlineCard";
 import { DocumentTools } from "./features/review/DocumentTools";
 import { OutlinePanel } from "./features/review/OutlinePanel";
-import { SaveToVaquill } from "./features/integration/SaveToVaquill";
+import { SaveToHakiChain } from "./features/integration/SaveToHakiChain";
 import { useDecisions } from "./features/review/decisions";
 import { ReviewIcon, DraftIcon, AssistantIcon, PlaybookIcon } from "./ui/icons";
 import { InfoTip } from "./ui/InfoTip";
@@ -135,7 +135,7 @@ function Preview() {
             <ReviewSummary result={RESULT} />
             <OutlinePanel />
             <DocumentTools redlines={RESULT.redlines} />
-            <SaveToVaquill mode="review" redlines={RESULT.redlines} title="NDA (reviewed)" />
+            <SaveToHakiChain mode="review" redlines={RESULT.redlines} title="NDA (reviewed)" />
             {visible.length === 0 ? (
               <Banner tone="info">Everything here is addressed.</Banner>
             ) : (
@@ -230,7 +230,7 @@ function AuthorityPreview() {
           <div className="row" style={{ justifyContent: "space-between" }}>
             <div className="row" style={{ gap: 6, alignItems: "center" }}>
               <h1 style={{ fontSize: 15 }}>Authority check</h1>
-              <InfoTip side="left" text="Checks every case citation in the document against Vaquill AI's US case-law corpus. Verified means a real matching case was found. No match can mean a hallucinated, mis-typed, or unreported citation, so confirm it yourself before you rely on it or file." />
+              <InfoTip side="left" text="Checks every case citation in the document against 's US case-law corpus. Verified means a real matching case was found. No match can mean a hallucinated, mis-typed, or unreported citation, so confirm it yourself before you rely on it or file." />
             </div>
             <Button variant="ghost" size="sm">New check</Button>
           </div>

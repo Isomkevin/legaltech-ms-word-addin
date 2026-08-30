@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Vaquill for Word - static task-pane host.
+# HakiChain for Word - static task-pane host.
 # Multi-stage: build the Vite bundle, then serve it from a rootless nginx.
 # Security posture is documented in DEPLOY.md.
 

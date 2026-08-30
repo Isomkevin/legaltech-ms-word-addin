@@ -211,7 +211,7 @@ export function CommunityCompareView() {
 
       <p className="small muted" style={{ margin: 0 }}>
         Compares on this device. Nothing is uploaded. For PDF references, formatting-aware diffs, and
-        an AI change summary, use the Vaquill AI hosted plan.
+        an AI change summary, use the HakiChain AI hosted plan.
       </p>
 
       {phase.kind === "error" && <Banner tone="danger">{phase.message}</Banner>}

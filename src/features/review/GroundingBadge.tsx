@@ -2,7 +2,7 @@ import { Badge } from "@/ui/primitives";
 import type { Grounding } from "@/api/types";
 
 /**
- * Grounding is Vaquill AI's transparency signal, surfaced where competitors
+ * Grounding is HakiChain AI's transparency signal, surfaced where competitors
  * hide it: whether the cited clause was confirmed verbatim in the source.
  */
 export function GroundingBadge({ grounding }: { grounding: Grounding }) {

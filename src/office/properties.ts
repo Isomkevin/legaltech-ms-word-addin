@@ -1,7 +1,7 @@
 import { runWord } from "./run";
 
 /**
- * Stamp the Vaquill AI review status into the document's STANDARD custom properties
+ * Stamp the HakiChain AI review status into the document's STANDARD custom properties
  * (`document.properties.customProperties`, WordApi 1.3). Unlike the sign-off
  * ledger (custom XML, invisible to anything but this add-in), these show in
  * Word's native File > Info > Properties and are read by DMS/records systems
@@ -12,13 +12,13 @@ import { runWord } from "./run";
  */
 
 const KEYS = {
-  status: "VaquillReviewStatus",
-  by: "VaquillReviewedBy",
-  at: "VaquillReviewedAt",
-  type: "VaquillContractType",
+  status: "HakiChainReviewStatus",
+  by: "HakiChainReviewedBy",
+  at: "HakiChainReviewedAt",
+  type: "HakiChainContractType",
 } as const;
 
-export interface VaquillReviewStamp {
+export interface HakiChainReviewStamp {
   /** e.g. "Signed off", "Pending sign-off", "Reviewed - clear to send". */
   status: string;
   by?: string;
@@ -31,7 +31,7 @@ function cap(v: string): string {
   return v.length > 255 ? v.slice(0, 255) : v;
 }
 
-export async function stampVaquillReview(stamp: VaquillReviewStamp): Promise<void> {
+export async function stampHakiChainReview(stamp: HakiChainReviewStamp): Promise<void> {
   return runWord(async (context) => {
     const props = context.document.properties.customProperties;
     // add() creates or overwrites, so re-stamping updates in place.

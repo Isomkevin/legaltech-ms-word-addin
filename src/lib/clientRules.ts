@@ -9,8 +9,8 @@
  * the .docx). A later version persists the rules onto the client record so they
  * follow the user across devices and teammates.
  */
-const STORAGE_KEY = "vaquill.clientRules";
-const ACTIVE_KEY = "vaquill.activeClientId";
+const STORAGE_KEY = "hakichain.clientRules";
+const ACTIVE_KEY = "hakichain.activeClientId";
 const MAX_RULES = 40;
 
 type RulesMap = Record<string, string[]>;

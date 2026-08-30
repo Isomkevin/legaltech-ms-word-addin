@@ -8,7 +8,7 @@ import type { ContractReviewResponse } from "@/api/types";
  * document identity that breaks on Save As or email, means it survives the file
  * leaving and coming back.
  */
-export const REVIEW_NS = "https://vaquill.ai/review/1";
+export const REVIEW_NS = "https://hakichain.com/review/1";
 
 export interface ReviewSnapshot {
   savedAt: string;

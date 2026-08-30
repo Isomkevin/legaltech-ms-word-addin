@@ -11,7 +11,7 @@
  * signing (future). The UI states this honestly.
  */
 
-export const GOVERNANCE_NS = "https://vaquill.ai/governance/1";
+export const GOVERNANCE_NS = "https://hakichain.com/governance/1";
 
 export type GovernanceStatus = "cleared" | "pending_signoff" | "signed_off";
 export type SignoffLevel = "manager" | "partner" | "gc";
@@ -39,8 +39,8 @@ export interface GovernanceLedger {
   playbookId?: string;
   matterId?: string;
   /**
-   * The saved Vaquill AI draft id, present only when the reviewed contract was
-   * saved to Vaquill AI (which yields a draft id). Its presence is what lets the
+   * The saved HakiChain AI draft id, present only when the reviewed contract was
+   * saved to HakiChain AI (which yields a draft id). Its presence is what lets the
    * sign-off run through the backend's authority-enforced approval instead of
    * the in-file attestation.
    */
@@ -66,7 +66,7 @@ export interface ReviewMeta {
   contractType?: string;
   playbookId?: string;
   matterId?: string;
-  /** Saved Vaquill AI draft id, when the contract was already saved. */
+  /** Saved HakiChain AI draft id, when the contract was already saved. */
   draftId?: string;
 }
 

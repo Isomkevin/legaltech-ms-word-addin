@@ -82,7 +82,7 @@ export function ContextMenu({
   }, [onClose]);
 
   // These three sources (US corpus, matter documents, web search) all run on the
-  // Vaquill AI backend/account. In the community/BYOK edition none of them apply,
+  // HakiChain AI backend/account. In the community/BYOK edition none of them apply,
   // so show them locked (rather than as live toggles that would silently do
   // nothing) and keep the attach-file section below, which works on-device.
   const community = isCommunity();
@@ -109,7 +109,7 @@ export function ContextMenu({
                 href={HOSTED_URL}
                 target="_blank"
                 rel="noreferrer"
-                title="Available on the Vaquill AI hosted plan"
+                title="Available on the HakiChain AI hosted plan"
               >
                 <span className="ctx-source__icon" aria-hidden>
                   {s.icon}
@@ -143,7 +143,7 @@ export function ContextMenu({
         })}
         {community ? (
           <p className="ctx-menu__note small muted">
-            Case law, matter documents, and web search are on the Vaquill AI hosted plan. Attach a
+            Case law, matter documents, and web search are on the HakiChain AI hosted plan. Attach a
             file below to add your own context.
           </p>
         ) : (

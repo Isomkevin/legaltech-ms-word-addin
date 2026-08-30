@@ -22,7 +22,7 @@ interface ApplyOutcome {
  * Sticky bottom bar. Two clearly separated actions:
  *  - Apply all open verified redlines in place, as tracked changes.
  *  - Download a clean redlined copy generated server-side (authored
- *    "Vaquill AI Contract Review"), for sharing without touching the working doc.
+ *    "HakiChain AI Contract Review"), for sharing without touching the working doc.
  */
 export function ReviewActionBar({
   redlines,

@@ -25,11 +25,11 @@ import { AiProvidersCard } from "./AiProvidersCard";
 import { CourtListenerCard } from "./CourtListenerCard";
 import "./settings.css";
 
-// Footer links on the marketing site (www.vaquill.ai, the domain the manifest
+// Footer links on the marketing site (www.hakichain.com, the domain the manifest
 // declares). Support matches the manifest's SupportUrl; confirm privacy/terms paths.
-const SUPPORT_URL = "https://www.vaquill.ai/support";
-const PRIVACY_URL = "https://www.vaquill.ai/privacy";
-const TERMS_URL = "https://www.vaquill.ai/terms";
+const SUPPORT_URL = "https://www.hakichain.com/support";
+const PRIVACY_URL = "https://www.hakichain.com/privacy";
+const TERMS_URL = "https://www.hakichain.com/terms";
 
 /**
  * Account / settings panel. Read-only account context (signed-in user, active

@@ -41,7 +41,7 @@ type MemoTone = "red" | "green" | "yellow";
 /**
  * How to locate this item's text in the document. `bookmarkIndex` is the
  * redline's original index in the full redlines array, so the anchor name
- * matches the one placed at review time (`Vaquill_clause_${index + 1}`). `text`
+ * matches the one placed at review time (`HakiChain_clause_${index + 1}`). `text`
  * is the verbatim fallback search. Absent entirely for flags with no anchor.
  */
 interface MemoLocate {
@@ -124,7 +124,7 @@ async function jumpToItem(item: MemoItem): Promise<boolean> {
   try {
     if (
       loc.bookmarkIndex !== undefined &&
-      (await goToBookmark(`Vaquill_clause_${loc.bookmarkIndex + 1}`))
+      (await goToBookmark(`HakiChain_clause_${loc.bookmarkIndex + 1}`))
     ) {
       return true;
     }
@@ -224,7 +224,7 @@ export function ReviewMemo({
   }
 
   // Download the redlined document: reuses the server-side corrected-export
-  // (native tracked changes, authored "Vaquill AI Contract Review"). Insertions
+  // (native tracked changes, authored "HakiChain AI Contract Review"). Insertions
   // have no clause to replace, so only anchored replacements go in.
   async function onDownload() {
     setDownloading(true);

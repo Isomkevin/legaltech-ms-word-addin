@@ -10,9 +10,9 @@
  *    with no account.
  *
  * When community (either way), api/http and api/sse route every call through the
- * local shim in src/community instead of the Vaquill AI backend.
+ * local shim in src/community instead of the HakiChain AI backend.
  */
-const BYOK_FLAG = "vaquill.byokMode";
+const BYOK_FLAG = "hakichain.byokMode";
 
 /**
  * Session fallback for a pane whose localStorage is blocked (Office storage

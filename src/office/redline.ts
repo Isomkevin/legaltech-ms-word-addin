@@ -7,12 +7,12 @@ import type { RedlineSuggestion } from "@/api/types";
  * Applies grounded redlines into the open document as native Word tracked
  * changes. The word-level diff (so only changed words show as insert/delete,
  * not the whole clause) is delegated to office-word-diff (Apache-2.0). This
- * module owns the Vaquill-specific parts: grounded anchoring of the verbatim
+ * module owns the HakiChain-specific parts: grounded anchoring of the verbatim
  * clause, change-tracking mode save/restore, and gating on grounding.
  *
  * Attribution constraint: Office.js cannot set the author of a tracked change,
  * so in-pane edits are attributed to the signed-in Word user. For edits stamped
- * "Vaquill AI Contract Review" regardless of the user, use the server export
+ * "HakiChain AI Contract Review" regardless of the user, use the server export
  * path (exportCorrectedDocx) instead.
  */
 
