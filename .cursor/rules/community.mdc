@@ -1,0 +1,16 @@
+---
+description: Community / BYOK edition must keep backend shapes
+globs: src/community/**/*.{ts,tsx},src/ai/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Community / BYOK
+
+- The shim must return the same JSON and SSE shapes as `backend/` so `src/api/*` and feature views stay untouched.
+- New hosted-only behavior: throw `REQUIRES_ACCOUNT` (see `localRouter.ts`). Do not invent fake corpus, good-law, or quota data.
+- New community-capable behavior: add a path in `localRouter` / `localStream` / `localForm`, plus prompts in `src/ai/prompts.ts` if needed.
+- Hide account-only chrome with `showsAccountSurfaces()` / `citationAuthorityAvailable()` in `gating.ts`. Avoid `isCommunity()` forks in every card.
+- Keys: `src/ai/keys.ts` (add-in-origin localStorage). Never `Office.Settings`.
+- `setByokMode` returns whether the flag persisted. If false, do not reload (reload wipes the in-memory flag).
+- Accept both camelCase and snake_case body fields (hosted Pydantic `populate_by_name`).
+- Citation existence may use the user's CourtListener token. Statutes and good-law stay hosted-only.

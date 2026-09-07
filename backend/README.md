@@ -2,6 +2,8 @@
 
 FastAPI service that implements the hosted API contract the Microsoft Word add-in already calls. In development the add-in talks to `http://localhost:8000` ([src/config.ts](../src/config.ts)).
 
+Coding agents: read [AGENTS.md](../AGENTS.md) (repo root) before changing routes or auth. This service is the Word-add-in MVP, not a clone of every HakiChain web-app surface.
+
 This is the hosted API for the Word add-in: auth, contract review, assistant chat, clause tools, playbooks, draft generation, prompt/clause libraries, document tools, `export-corrected`, and CourtListener citation-lookup. Statute corpus, billed quotas, OCR, and compare still return empty or not-found shapes.
 
 Set `REQUIRE_SUPABASE=true` in production so the process refuses to boot without Supabase credentials. Tests and local pytest use the in-memory store.

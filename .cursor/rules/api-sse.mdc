@@ -1,0 +1,18 @@
+---
+description: Hosted HTTP and SSE client conventions
+globs: src/api/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# API and SSE
+
+- Features call `src/api/*` only. Do not `fetch` `config.apiBase` from a view.
+- `http.ts` / `sse.ts` already branch to the community shim when `isCommunity()`. Keep that lazy-import so the hosted bundle stays thin.
+- No `EventSource`. POST + reader + `Authorization` header. No `?_token=` fallback.
+- Parse CRLF. Tolerate `data:` with or without a trailing space. Flush the decoder tail. Ignore `:` heartbeats.
+- Legal-tool streams often put the event in JSON `type` (`init` / `progress` / `result` / `done`). Chat uses real `event:` lines.
+- Handle non-200 before reading the body. A stream without `done` is a truncation.
+- Chat: UUID `clientMessageId`, persist under that id, honor `replace` and `corrected_content`.
+- 401: one refresh + retry (already in `http.ts` / `sse.ts`). Map other statuses via `ApiError` / `errorMessage`.
+- Pre-check `MAX_DOCUMENT_CHARS` (200_000) before a full-document review POST.
+- Never recompute `approvalGate`, `liabilityExposure`, or `counterpartyMatch` on the client.

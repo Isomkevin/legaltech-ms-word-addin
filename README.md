@@ -306,17 +306,29 @@ Word (desktop / Mac / web)
 
 ```text
 src/
-  app/          app shell + tab navigation
+  app/          app shell + tab navigation + intent bus
   features/     one folder per surface (assistant, review, draft, tools, ...)
   office/       Office.js helpers: search/anchoring, redline apply, comments, ...
   api/          typed backend clients (chat, contract-review, edit, research, ...)
+  community/    BYOK request/stream shim (same shapes as the hosted API)
+  ai/           provider registry + on-device key store (community edition)
+  auth/         Office Dialog + Supabase PKCE
   ui/           shared primitives and design-system components
   lib/          framework-agnostic helpers
+backend/         hosted FastAPI (Word add-in MVP)
 ```
+
+Agents: see [AGENTS.md](AGENTS.md) for rules and a "where to look" map.
+
+## For AI coding agents
+
+Start at [AGENTS.md](AGENTS.md). That file is the canonical brief for this repository: both editions, the in-repo backend, Office.js rules, auth, SSE, secrets, and where to make a change. Cursor rules in [`.cursor/rules/`](.cursor/rules/) apply on top of it when you open matching files.
 
 ## Contributing
 
 Issues and pull requests are welcome.
+
+The change gate is a green `npm run type-check` and `npm run build`. If you touch `backend/`, also run `cd backend && pytest -q`.
 
 ## License
 

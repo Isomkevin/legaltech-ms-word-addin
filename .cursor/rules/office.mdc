@@ -1,0 +1,18 @@
+---
+description: Office.js document I/O lives only in src/office
+globs: src/office/**/*.ts
+alwaysApply: false
+---
+
+# Office.js
+
+- All `Word.run` stays in `src/office/`. Export helpers; do not add `Word.run` in features.
+- Use `runWord` and `serializeTrackChanges` from `run.ts`. Overlapping tracking-mode save/restore can leave tracking OFF.
+- Read prose with `getReviewedText(current)` (`document.ts`). Never `body.text` on a redlined contract.
+- Search is 255 chars and cannot cross paragraphs. Long clauses: head + tail windows, then the span (`redline.ts`).
+- Re-verify the located span at apply time. Text boxes/shapes cannot be searched.
+- Tracked-change author is read-only. Branded author: server `export-corrected` + `insertFileFromBase64`.
+- `getFirstOrNullObject` + `isNullObject`, never `getFirst`. Always `closeAsync()` on `getFileAsync` handles.
+- Prefer tracked `insertText` over `insertOoxml` (web is unreliable). Do not block the UI thread more than ~5s.
+- Never write tokens or PII to `Office.Settings`. Durable review state: custom XML (`reviewState.ts`).
+- Protection: use `isProtectionError` and rethrow in swallow-loops. A silent "not found" on a locked doc is a leak-grade bug.

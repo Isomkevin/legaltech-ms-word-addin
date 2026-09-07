@@ -1,0 +1,15 @@
+---
+description: FastAPI Word-add-in MVP conventions
+globs: backend/**/*.py
+alwaysApply: false
+---
+
+# Backend
+
+- Prefix `/api/v1`. CORS: exact origins with credentials (`https://localhost:3000`, `https://word.hakichain.com`). Never `X-Frame-Options: DENY`.
+- Org is JWT-derived, never taken from the JSON body. `X-Organization-ID` is verified membership or 401.
+- Matter misses: return 404, not 403 (do not leak existence).
+- SSE: legal tools may use JSON `type`; chat uses `event:` lines plus heartbeats. Keep the pane contract in `src/api/sse.ts`.
+- Default pytest uses the in-memory store and must not call a live LLM, CourtListener, or Supabase.
+- This is an MVP. Statute corpus, billed quotas, OCR, and some compare paths are empty or not-found on purpose. Do not stub a fake legal corpus.
+- `SUPABASE_SERVICE_ROLE_KEY` stays in the API process only. `REQUIRE_SUPABASE=true` in production.

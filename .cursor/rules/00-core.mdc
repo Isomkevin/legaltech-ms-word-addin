@@ -1,0 +1,17 @@
+---
+description: Repo-wide working rules for the HakiChain Word add-in
+alwaysApply: true
+---
+
+# Core
+
+Read `AGENTS.md` before changing architecture, editions, auth, or Office.js I/O.
+
+- Four tabs only: assistant, review, draft, tools. Cross-feature handoffs extend `AppIntent` in `src/app/nav.tsx` and call `clearIntent()` once. Do not add a fifth primary tab unless asked.
+- `@/` maps to `src/`. Hosted vs community is `isCommunity()` in `src/community/edition.ts`. Feature modules stay edition-agnostic; route through `src/api/` so the community shim can intercept.
+- Change gate: `npm run type-check` and `npm run build`. Backend edits: `cd backend && pytest -q`.
+- Do not commit, push, or amend unless the user explicitly asks in this turn.
+- Check `git status` before assuming a feature is landed.
+- Immutability: create new objects. Small files. Validate user input.
+- US spelling. No emojis. No em dashes. White theme only.
+- Hosted in-app copy: say "HakiChain AI", do not name model vendors. Community Settings / KeyWizard may name providers. Never put `service_role` in the pane or Vite/Docker pane build args.

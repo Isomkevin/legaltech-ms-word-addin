@@ -1,0 +1,15 @@
+---
+description: Pane UI, copy, and theme
+globs: src/features/**/*.{ts,tsx,css},src/ui/**/*.{ts,tsx,css},src/App.tsx
+alwaysApply: false
+---
+
+# UI and copy
+
+- White theme only. Reuse `src/ui/` primitives (`Button`, `Banner`, `Combobox`, `ToolCard`, `ViewHeader`, icons) before adding a new control.
+- New icons go in `src/ui/icons.tsx` as inline SVG. No emoji.
+- Hosted product copy: "HakiChain AI". Do not name model or cloud vendors. Community KeyWizard / Settings must name the user's chosen provider.
+- Map errors with `errorMessage` from `src/api/errors.ts`. Quota -> upgrade. 413 -> review a selection. `REQUIRES_ACCOUNT` -> that phrase.
+- Render server `approvalGate` as-is (`SignoffGate`). Do not recompute sign-off in the pane.
+- Keep `data-tour` anchors in sync with `src/tour/` if you move layout.
+- Selection tools and document tools fold under existing tabs (`assistant` / `tools`), not new top-level nav.
