@@ -50,7 +50,7 @@ Note the resulting URL, for example `https://hakichain.yourfirm.com` or the host
 Copy `manifest.community.xml` and, in the copy:
 
 - Replace every `YOUR-DOMAIN.example.com` with your host from step 2.
-- Replace the `<Id>` GUID with a new unique one (generate at https://guidgenerator.com) so your install never collides with anyone else's.
+- Replace the `<Id>` GUID with a new unique one (generate at <https://guidgenerator.com>) so your install never collides with anyone else's.
 
 ### 4. Hand the manifest to each person
 
