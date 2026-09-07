@@ -46,6 +46,7 @@ def test_approval_gate_required_only_for_deal_breakers():
     ]
     gate = compute_approval_gate(redlines)
     assert gate["required"] is True
+    assert gate["level"] == "manager"
     assert gate["dealBreakerCount"] == 1
     assert "deal-breaker" in gate["summary"]
 

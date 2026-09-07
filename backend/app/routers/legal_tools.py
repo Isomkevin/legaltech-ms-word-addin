@@ -215,6 +215,25 @@ async def guidelines_check(body: GuidelinesRequest, _user: CurrentUser = Depends
     return await complete_json(system, user)
 
 
+@router.post("/legal-tools/export-corrected")
+async def export_corrected(_user: CurrentUser = Depends(get_current_user)) -> None:
+    raise ApiError(
+        404,
+        "Server-authored tracked-changes export is not available in this build. Apply redlines in the pane instead.",
+        "not_found",
+    )
+
+
+@router.post("/legal-tools/ocr")
+async def start_ocr(_user: CurrentUser = Depends(get_current_user)) -> None:
+    raise ApiError(404, "Document OCR is not available in this build.", "not_found")
+
+
+@router.get("/legal-tools/ocr/{job_id}")
+async def get_ocr(job_id: str, _user: CurrentUser = Depends(get_current_user)) -> None:
+    raise ApiError(404, "Document OCR is not available in this build.", "not_found")
+
+
 @router.post("/playbook-fit/check")
 async def playbook_fit(body: PlaybookFitRequest, _user: CurrentUser = Depends(get_current_user)) -> dict:
     positions = {k: v.model_dump(by_alias=True) for k, v in body.positions.items()}

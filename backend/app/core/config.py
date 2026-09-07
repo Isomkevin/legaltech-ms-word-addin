@@ -14,7 +14,9 @@ class Settings(BaseSettings):
     openai_base_url: str = "https://api.openai.com/v1"
     llm_model: str = "gpt-4o-mini"
 
-    cors_origins: str = "https://localhost:3000,https://word.hakichain.ai"
+    cors_origins: str = (
+        "https://localhost:3000,https://word.hakichain.ai,https://word.hakichain.com"
+    )
     host: str = "0.0.0.0"
     port: int = 8000
 

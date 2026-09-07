@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 
 from app.core.errors import ApiError
 from app.core.security import CurrentUser, get_current_user
@@ -10,6 +10,7 @@ from app.db.store import Store, get_store
 from app.models.schemas import LearningApply, PlaybookCreate, PlaybookList, PlaybookOut
 from app.services import prompts
 from app.services.llm import complete_json
+from app.services.text_extract import extract_text
 
 router = APIRouter(tags=["playbooks"])
 
@@ -59,9 +60,14 @@ async def create_playbook(
 async def extract_playbook(
     text: str = Form(""),
     contract_type: str = Form("auto"),
+    file: UploadFile | None = File(None),
     _user: CurrentUser = Depends(get_current_user),
 ) -> dict[str, Any]:
-    system, user = prompts.playbook_extract_prompt(text)
+    source_text = text
+    if (not source_text.strip()) and file is not None:
+        data = await file.read()
+        source_text = extract_text(file.filename or "playbook.docx", data)
+    system, user = prompts.playbook_extract_prompt(source_text)
     raw = await complete_json(system, user)
     positions = raw.get("positions") if isinstance(raw.get("positions"), dict) else {}
     detected = raw.get("contractType") if isinstance(raw.get("contractType"), str) else ""

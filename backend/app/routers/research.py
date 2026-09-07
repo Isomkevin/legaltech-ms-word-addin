@@ -6,6 +6,7 @@ the add-in calls POST /api/v1/us/citation-style.
 
 from fastapi import APIRouter, Depends
 
+from app.core.errors import ApiError
 from app.core.security import CurrentUser, get_current_user
 from app.models.schemas import CitationStyleRequest
 from app.services import prompts
@@ -61,3 +62,18 @@ async def statute_ask(act_id: str, _user: CurrentUser = Depends(get_current_user
 @router.post("/citation-status/batch")
 async def citation_status_batch(_user: CurrentUser = Depends(get_current_user)) -> dict:
     return {"results": []}
+
+
+@router.post("/compare/uploads")
+async def compare_upload(_user: CurrentUser = Depends(get_current_user)) -> None:
+    raise ApiError(404, "Document compare is not available in this build.", "not_found")
+
+
+@router.post("/compare/run")
+async def compare_run(_user: CurrentUser = Depends(get_current_user)) -> None:
+    raise ApiError(404, "Document compare is not available in this build.", "not_found")
+
+
+@router.get("/compare/{compare_id}")
+async def compare_status(compare_id: str, _user: CurrentUser = Depends(get_current_user)) -> None:
+    raise ApiError(404, "Document compare is not available in this build.", "not_found")

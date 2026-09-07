@@ -2,7 +2,9 @@
 
 FastAPI service that implements the hosted API contract the Microsoft Word add-in already calls. In development the add-in talks to `http://localhost:8000` ([src/config.ts](../src/config.ts)).
 
-This is the MVP: auth, contract review, assistant chat, clause tools, playbooks, and draft generation. Research corpus, billed quotas, OCR, compare, and branded tracked-changes export are out of scope and return empty shapes the pane already handles.
+This is the MVP: auth, contract review, assistant chat, clause tools, playbooks, and draft generation. Research corpus, billed quotas, OCR, compare, and branded tracked-changes export are out of scope and return empty or not-found shapes the pane already handles.
+
+CORS allows exact origins with credentials: `https://localhost:3000`, `https://word.hakichain.ai`, and `https://word.hakichain.com`. Allowed request headers include `Authorization`, `Content-Type`, `X-Organization-ID`, and `X-Timezone`. The service does not send `X-Frame-Options: DENY`.
 
 ## Prerequisites
 

@@ -347,3 +347,11 @@ class DraftReferenceOut(CamelModel):
     id: str
     file_name: str
     word_count: int
+
+
+class ImportDraftRequest(SnakeModel):
+    title: str
+    category: str = "custom"
+    content: dict[str, Any] | None = None
+    matter_id: str | None = None
+    redlines: list[dict[str, Any]] | None = None

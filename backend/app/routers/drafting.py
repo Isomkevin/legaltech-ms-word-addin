@@ -19,6 +19,7 @@ from app.models.schemas import (
     GenerateDraftRequest,
     GeneratedSection,
     ImprovePromptRequest,
+    ImportDraftRequest,
     RewriteRequest,
 )
 from app.services import prompts
@@ -129,6 +130,45 @@ async def upload_reference(
     wc = word_count(text)
     row = await store.save_reference(user.organization_id or "", user.user_id, filename, text, wc)
     return DraftReferenceOut(id=row["id"], file_name=row.get("file_name") or filename, word_count=wc)
+
+
+@router.post("/drafting/import")
+async def import_draft(
+    body: ImportDraftRequest,
+    user: CurrentUser = Depends(get_current_user),
+    store: Store = Depends(get_store),
+) -> dict[str, str]:
+    """Persist a reviewed or prepared document as a draft (Save to HakiChain)."""
+    title = body.title or "Imported document"
+    content = body.content if isinstance(body.content, dict) else _tiptap(title, [])
+    row = await store.create_draft(
+        user.organization_id or "",
+        user.user_id,
+        {
+            "title": title,
+            "category": body.category or "custom",
+            "content": content,
+            "source": "imported",
+            "metadata": {"redlines": body.redlines or [], "matter_id": body.matter_id},
+            "generation_status": "completed",
+        },
+    )
+    return {"draftId": row["id"], "title": row.get("title") or title, "category": row.get("category") or "custom"}
+
+
+@router.post("/drafting/drafts/{draft_id}/save-to-matter")
+async def save_draft_to_matter(
+    draft_id: str,
+    matterId: str = Query(""),
+    user: CurrentUser = Depends(get_current_user),
+    store: Store = Depends(get_store),
+) -> dict[str, bool]:
+    row = await store.get_draft(user.organization_id or "", draft_id)
+    if not row:
+        raise ApiError(404, "Draft not found.", "not_found")
+    # Matters are empty in the MVP. Accept the call so the pane does not error.
+    _ = matterId
+    return {"ok": True}
 
 
 @router.post("/drafting/generate", response_model=DraftResult)
@@ -285,6 +325,22 @@ async def cancel_draft(
         },
     )
     return {"cancelled": True}
+
+
+@router.post("/drafting/drafts/{draft_id}/approvals")
+async def record_approval(
+    draft_id: str,
+    _user: CurrentUser = Depends(get_current_user),
+    store: Store = Depends(get_store),
+) -> None:
+    row = await store.get_draft(_user.organization_id or "", draft_id)
+    if not row:
+        raise ApiError(404, "Draft not found.", "not_found")
+    raise ApiError(
+        404,
+        "Authority-enforced sign-off is not available in this build. Use the in-file attestation.",
+        "not_found",
+    )
 
 
 @router.get("/drafting/drafts/{draft_id}/export")

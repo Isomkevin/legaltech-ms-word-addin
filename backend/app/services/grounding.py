@@ -49,7 +49,7 @@ def compute_approval_gate(redlines: list[dict[str, Any]]) -> dict[str, Any]:
     n = len(deal_breakers)
     return {
         "required": n > 0,
-        "level": None,
+        "level": "manager" if n > 0 else None,
         "dealBreakerCount": n,
         "reasons": [],
         "summary": (

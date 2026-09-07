@@ -57,3 +57,51 @@ def test_research_stubs_do_not_invent_authorities(client, auth_header):
     assert lookup.json() == []
     resolve = client.get("/api/v1/us-statutes/resolve?q=18%20USC%201030", headers=auth_header)
     assert resolve.json()["found"] is False
+
+
+def test_feedback_records_without_side_effects(client, auth_header):
+    client.get("/api/v1/auth/me", headers=auth_header)
+    res = client.post(
+        "/api/v1/redline-feedback/feedback",
+        headers=auth_header,
+        json={"rating": "up", "clauseName": "Term"},
+    )
+    assert res.status_code == 200
+    assert res.json()["recorded"] is True
+
+
+def test_import_draft_returns_draft_id(client, auth_header):
+    client.get("/api/v1/auth/me", headers=auth_header)
+    res = client.post(
+        "/api/v1/drafting/import",
+        headers=auth_header,
+        json={"title": "Reviewed NDA", "category": "nda", "content": {"type": "doc", "content": []}},
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert body["draftId"]
+    listed = client.get("/api/v1/drafting/drafts", headers=auth_header)
+    assert any(d["id"] == body["draftId"] for d in listed.json())
+
+
+def test_approvals_are_honest_not_found(client, auth_header):
+    client.get("/api/v1/auth/me", headers=auth_header)
+    imported = client.post(
+        "/api/v1/drafting/import",
+        headers=auth_header,
+        json={"title": "NDA", "category": "nda"},
+    ).json()
+    res = client.post(
+        f"/api/v1/drafting/drafts/{imported['draftId']}/approvals",
+        headers=auth_header,
+        json={"approvalLevel": "manager", "decision": "approved"},
+    )
+    assert res.status_code == 404
+    assert res.json()["detail"]["error_code"] == "not_found"
+
+
+def test_export_corrected_is_honest_not_found(client, auth_header):
+    client.get("/api/v1/auth/me", headers=auth_header)
+    res = client.post("/api/v1/legal-tools/export-corrected", headers=auth_header, json={})
+    assert res.status_code == 404
+    assert res.json()["detail"]["error_code"] == "not_found"
