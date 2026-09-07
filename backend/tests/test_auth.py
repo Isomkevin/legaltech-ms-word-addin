@@ -53,8 +53,8 @@ def test_matters_and_clients_empty(client, auth_header):
 def test_research_stubs_do_not_invent_authorities(client, auth_header):
     client.get("/api/v1/auth/me", headers=auth_header)
     lookup = client.get("/api/v1/us/citation-lookup?citation=123%20U.S.%201", headers=auth_header)
-    assert lookup.status_code == 200
-    assert lookup.json() == []
+    assert lookup.status_code == 503
+    assert lookup.json()["detail"]["error_code"] == "citation_lookup_unavailable"
     resolve = client.get("/api/v1/us-statutes/resolve?q=18%20USC%201030", headers=auth_header)
     assert resolve.json()["found"] is False
 
@@ -100,8 +100,7 @@ def test_approvals_are_honest_not_found(client, auth_header):
     assert res.json()["detail"]["error_code"] == "not_found"
 
 
-def test_export_corrected_is_honest_not_found(client, auth_header):
+def test_export_corrected_requires_document(client, auth_header):
     client.get("/api/v1/auth/me", headers=auth_header)
     res = client.post("/api/v1/legal-tools/export-corrected", headers=auth_header, json={})
-    assert res.status_code == 404
-    assert res.json()["detail"]["error_code"] == "not_found"
+    assert res.status_code == 422

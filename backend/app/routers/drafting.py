@@ -1,31 +1,69 @@
 from __future__ import annotations
 
 import asyncio
+import json
+from collections.abc import AsyncIterator
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from fastapi.responses import Response
 
 from app.core.errors import ApiError
 from app.core.security import CurrentUser, get_current_user
-from app.db.store import Store, get_store
+from app.db.store import Store, expire_stale_generation, get_store
 from app.models.schemas import (
+    ClauseCreate,
+    ClauseOut,
+    DetectEntitiesRequest,
     DraftListItem,
     DraftReferenceOut,
     DraftResult,
     DraftRow,
+    EditDocumentRequest,
     ExplainRequest,
     GenerateDraftRequest,
     GeneratedSection,
     ImprovePromptRequest,
     ImportDraftRequest,
+    ReconcileRequest,
     RewriteRequest,
 )
 from app.services import prompts
 from app.services.docx_export import draft_to_docx_bytes
+from app.services.grounding import normalize_redline
 from app.services.llm import complete_json
+from app.services.sse import format_named, sse_response
 from app.services.text_extract import extract_text, word_count
+
+MAX_DOCUMENT_CHARS = 200_000
+
+
+def _cap(text: str) -> None:
+    if len(text) > MAX_DOCUMENT_CHARS:
+        raise ApiError(
+            413,
+            "This document is too long to review in full. Select a section instead.",
+            "document_too_large",
+            extra={"limit_chars": MAX_DOCUMENT_CHARS},
+        )
+
+
+def _clause_out(row: dict[str, Any]) -> dict[str, Any]:
+    return ClauseOut(
+        id=row["id"],
+        name=row.get("name") or "Clause",
+        clause_type=row.get("clause_type") or "custom",
+        content=row.get("content") or "",
+        jurisdiction=row.get("jurisdiction") or "US",
+        tone=row.get("tone") or "balanced",
+        applicable_acts=row.get("applicable_acts") or [],
+        tags=row.get("tags") or [],
+        applicable_categories=row.get("applicable_categories"),
+        source=row.get("source") or "user",
+        is_system=bool(row.get("is_system")),
+        created_at=str(row.get("created_at")) if row.get("created_at") else None,
+    ).model_dump(by_alias=True)
 
 router = APIRouter(tags=["drafting"])
 
@@ -292,6 +330,7 @@ async def get_draft(
     row = await store.get_draft(user.organization_id or "", draft_id)
     if not row:
         raise ApiError(404, "Draft not found.", "not_found")
+    row = await expire_stale_generation(store, user.organization_id or "", row)
     return DraftRow(
         id=row["id"],
         title=row.get("title") or "Untitled draft",
@@ -363,3 +402,262 @@ async def export_draft(
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.get("/drafting/clauses")
+async def list_clauses(
+    clauseType: str | None = None,
+    jurisdiction: str | None = None,
+    tone: str | None = None,
+    source: str | None = None,
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    user: CurrentUser = Depends(get_current_user),
+    store: Store = Depends(get_store),
+) -> list[dict[str, Any]]:
+    rows = await store.list_clauses(
+        user.organization_id or "",
+        {
+            "clause_type": clauseType,
+            "jurisdiction": jurisdiction,
+            "tone": tone,
+            "source": source,
+            "limit": limit,
+            "offset": offset,
+        },
+    )
+    return [_clause_out(r) for r in rows]
+
+
+@router.post("/drafting/clauses")
+async def create_clause(
+    body: ClauseCreate,
+    user: CurrentUser = Depends(get_current_user),
+    store: Store = Depends(get_store),
+) -> dict[str, Any]:
+    clause_type = body.clause_type or body.clauseType or "custom"
+    row = await store.create_clause(
+        user.organization_id or "",
+        user.user_id,
+        {
+            "name": body.name,
+            "clause_type": clause_type,
+            "content": body.content,
+            "jurisdiction": body.jurisdiction,
+            "tone": body.tone,
+            "tags": body.tags,
+        },
+    )
+    return _clause_out(row)
+
+
+@router.delete("/drafting/clauses/{clause_id}")
+async def delete_clause(
+    clause_id: str,
+    user: CurrentUser = Depends(get_current_user),
+    store: Store = Depends(get_store),
+) -> Response:
+    await store.delete_clause(user.organization_id or "", clause_id)
+    return Response(status_code=204)
+
+
+@router.post("/drafting/extract-text")
+async def extract_text_route(
+    file: UploadFile = File(...),
+    _user: CurrentUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    data = await file.read()
+    filename = file.filename or "document.txt"
+    text = extract_text(filename, data)
+    return {"text": text, "chars": len(text), "truncated": False, "filename": filename}
+
+
+@router.post("/drafting/extract-clause")
+async def extract_clause_route(
+    file: UploadFile = File(...),
+    clause: str = Form(""),
+    _user: CurrentUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    data = await file.read()
+    filename = file.filename or "document.txt"
+    text = extract_text(filename, data)
+    _cap(text)
+    system, user = prompts.extract_clause_prompt(clause, text)
+    raw = await complete_json(system, user)
+    found = raw.get("found") is True
+    extracted = raw.get("text") if isinstance(raw.get("text"), str) else ""
+    if extracted and extracted not in text:
+        found = False
+        extracted = ""
+    return {
+        "found": found,
+        "label": raw.get("label") if isinstance(raw.get("label"), str) else clause,
+        "text": extracted,
+    }
+
+
+@router.post("/drafting/fill-from-reference")
+async def fill_from_reference(
+    file: UploadFile = File(...),
+    placeholders: str = Form("[]"),
+    _user: CurrentUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    data = await file.read()
+    filename = file.filename or "reference.txt"
+    text = extract_text(filename, data)
+    _cap(text)
+    try:
+        names = json.loads(placeholders)
+    except json.JSONDecodeError:
+        names = []
+    if not isinstance(names, list):
+        names = []
+    names = [n for n in names if isinstance(n, str)]
+    system, user = prompts.fill_prompt(names, text)
+    raw = await complete_json(system, user)
+    fills = []
+    items = raw.get("fills") if isinstance(raw.get("fills"), list) else []
+    for i, name in enumerate(names):
+        item = items[i] if i < len(items) and isinstance(items[i], dict) else {}
+        quote = item.get("quote") if isinstance(item.get("quote"), str) else ""
+        value = item.get("value") if isinstance(item.get("value"), str) else ""
+        found = item.get("found") is True and bool(quote) and quote in text
+        fills.append(
+            {
+                "placeholder": name,
+                "found": found,
+                "value": value if found else "",
+                "quote": quote if found else "",
+            }
+        )
+    return {"fills": fills, "referenceChars": len(text), "truncated": False}
+
+
+@router.post("/drafting/reconcile-terms")
+async def reconcile_terms(
+    body: ReconcileRequest,
+    _user: CurrentUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    _cap(body.destination_text)
+    system, user = prompts.reconcile_prompt(body.clause_text, body.destination_text)
+    return await complete_json(system, user)
+
+
+@router.post("/redaction/detect-entities")
+async def detect_entities(
+    body: DetectEntitiesRequest,
+    _user: CurrentUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    _cap(body.document_text)
+    system, user = prompts.redact_prompt(body.document_text)
+    raw = await complete_json(system, user)
+    entities = []
+    for item in raw.get("entities") if isinstance(raw.get("entities"), list) else []:
+        if not isinstance(item, dict):
+            continue
+        text = item.get("text") if isinstance(item.get("text"), str) else ""
+        if text and text in body.document_text:
+            entities.append(
+                {
+                    "category": item.get("category") if isinstance(item.get("category"), str) else "person",
+                    "text": text,
+                }
+            )
+    return {"entities": entities}
+
+
+def _ground_edits(document: str, raw: dict[str, Any]) -> dict[str, Any]:
+    edits = []
+    for item in raw.get("edits") if isinstance(raw.get("edits"), list) else []:
+        if not isinstance(item, dict):
+            continue
+        grounded = normalize_redline(
+            {
+                "clauseName": item.get("label") or item.get("clauseName"),
+                "currentLanguage": item.get("currentLanguage") or item.get("current_language"),
+                "proposedLanguage": item.get("proposedLanguage") or item.get("proposed_language"),
+                "rationale": item.get("rationale"),
+                "fallbackPosition": item.get("fallbackPosition") or item.get("fallback_position"),
+                "nature": item.get("nature"),
+                "grounding": item.get("grounding"),
+            },
+            document,
+        )
+        edits.append(
+            {
+                "label": item.get("label") if isinstance(item.get("label"), str) else grounded["clauseName"],
+                "sectionReference": item.get("sectionReference")
+                if isinstance(item.get("sectionReference"), str)
+                else grounded.get("sectionReference") or "",
+                "currentLanguage": grounded["currentLanguage"],
+                "proposedLanguage": grounded["proposedLanguage"],
+                "rationale": grounded["rationale"],
+                "fallbackPosition": grounded.get("fallbackPosition"),
+                "grounding": grounded["grounding"],
+                "nature": grounded.get("nature"),
+            }
+        )
+    return {
+        "overview": raw.get("overview") if isinstance(raw.get("overview"), str) else "",
+        "edits": edits,
+        "summary": raw.get("summary") if isinstance(raw.get("summary"), str) else "",
+    }
+
+
+async def _run_edit(body: EditDocumentRequest) -> dict[str, Any]:
+    _cap(body.document_text)
+    prior = []
+    for e in body.prior_edits or []:
+        if isinstance(e, dict):
+            prior.append(
+                {
+                    "label": str(e.get("label") or ""),
+                    "currentLanguage": str(e.get("currentLanguage") or e.get("current_language") or ""),
+                    "proposedLanguage": str(e.get("proposedLanguage") or e.get("proposed_language") or ""),
+                }
+            )
+    system, user = prompts.edit_document_prompt(
+        body.document_text,
+        body.instruction,
+        body.contract_type,
+        body.prior_instructions or [],
+        prior,
+    )
+    raw = await complete_json(system, user)
+    return _ground_edits(body.document_text, raw)
+
+
+@router.post("/drafting/edit-document")
+async def edit_document(
+    body: EditDocumentRequest,
+    _user: CurrentUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    return await _run_edit(body)
+
+
+@router.post("/drafting/edit-document/stream")
+async def edit_document_stream(
+    body: EditDocumentRequest,
+    _user: CurrentUser = Depends(get_current_user),
+):
+    async def events() -> AsyncIterator[str]:
+        yield format_named("meta", {"sections": 0})
+        try:
+            result = await _run_edit(body)
+        except ApiError as e:
+            yield format_named("error", {"message": e.message})
+            yield format_named("done", {})
+            return
+        except Exception:
+            yield format_named("error", {"message": "The edit could not be completed."})
+            yield format_named("done", {})
+            return
+        for edit in result["edits"]:
+            yield format_named("edit", {"edit": edit})
+        yield format_named(
+            "summary",
+            {"overview": result["overview"], "summary": result["summary"], "count": len(result["edits"])},
+        )
+        yield format_named("done", {})
+
+    return sse_response(events())

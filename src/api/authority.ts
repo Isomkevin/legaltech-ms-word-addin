@@ -196,7 +196,11 @@ export async function verifyCitation(
       { signal },
     );
     const entry = Array.isArray(res) ? res[0] : undefined;
-    if (!entry) return { raw, count, verdict: "unrecognized" };
+    if (!entry) {
+      // Hosted empty 200 used to mean "unrecognized" / hallucinated. A missing
+      // lookup payload is "could not verify" unless community CourtListener ran.
+      return { raw, count, verdict: isCommunity() ? "unrecognized" : "error" };
+    }
 
     const cluster = entry.clusters?.[0];
     // Mirror backend leniency: a non-empty clusters array is a match. Only a

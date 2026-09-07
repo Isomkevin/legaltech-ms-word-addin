@@ -70,9 +70,12 @@ If you are self-hosting the community edition, you can stop here — none of the
 
 ## What actually gets deployed
 
-- **This repo** builds to static files and is served by the rootless nginx in the [Dockerfile](Dockerfile). Host it at `word.hakichain.com`.
-- **The backend** (the HakiChain API, already running at `api.hakichain.com`) needs exactly one change: allow the add-in origin through CORS.
-- **The manifest** ([manifest.xml](manifest.xml)) is already production-shaped (it points at `word.hakichain.com` and `api.hakichain.com`). You sideload it to test, then submit it to AppSource later.
+- **Task pane:** static files served by the rootless nginx in the [Dockerfile](Dockerfile) at `word.hakichain.com`.
+- **API:** the FastAPI app in [backend/](backend/), containerized by [backend/Dockerfile](backend/Dockerfile). Host it at `api.hakichain.com`. This is **not** an external already-running service.
+- **Compose:** [docker-compose.yml](docker-compose.yml) runs pane + API locally. The pane build args are only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+- **Manifest:** [manifest.xml](manifest.xml) already points at those two hosts.
+
+`www.hakichain.com` is a different product. Do not assume it hosts the pane.
 
 ## Configuration model
 
@@ -122,22 +125,38 @@ docker run --rm -p 8080:8080 ms-word-addin
 
 Point `word.hakichain.com` DNS at the Dokploy host before the certificate can be issued.
 
-## 3. Backend CORS (one change, separate deploy)
+## 3. Deploy this repo's backend
 
-The add-in calls `api.hakichain.com` from the `https://word.hakichain.com` origin, so that origin must be allowed by CORS on the backend.
-Add it to the FastAPI CORS allowlist (`CORSMiddleware` `allow_origins`) in the backend repo:
+Deploy [backend/](backend/) as its own service (Dokploy/Render/compose). Bind `0.0.0.0:$PORT`. Health: `GET /health`. Readiness: `GET /health/ready` (503 if `REQUIRE_SUPABASE=true` and the database is unreachable).
 
+Set these secrets on the API container (never as Vite build args):
+
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_JWT_SECRET` (or leave blank to use JWKS)
+- `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `LLM_MODEL`
+- `COURTLISTENER_API_TOKEN`
+- `REQUIRE_SUPABASE=true`
+- `CORS_ORIGINS=https://word.hakichain.com,https://localhost:3000`
+
+Default CORS in code is those two origins only. Credentials CORS requires an exact origin match.
+
+Apply [backend/sql/001_init.sql](backend/sql/001_init.sql) and [backend/sql/002_prompts_clauses.sql](backend/sql/002_prompts_clauses.sql) on the same Supabase project used by `VITE_SUPABASE_*`.
+
+After DNS/TLS:
+
+```bash
+curl -fsS https://api.hakichain.com/health
+curl -fsS -I -X OPTIONS https://api.hakichain.com/api/v1/auth/me \
+  -H "Origin: https://word.hakichain.com" \
+  -H "Access-Control-Request-Method: GET" \
+  -H "Access-Control-Request-Headers: Authorization,X-Organization-ID"
 ```
-https://word.hakichain.com
-```
 
-That is the only backend change.
-Redeploy the backend after adding it.
-Do not use a wildcard `*` origin: the add-in sends the Supabase bearer, so the allowlist must be explicit.
+Until DNS is cut over, run `docker compose up` and sideload [manifest.dev.xml](manifest.dev.xml) against `https://localhost:3000`.
 
 ## 4. Sideload and smoke-test in a real Word host
 
-The preview harness cannot exercise Office.js, so this is where the add-in is really validated.
+Walk the checklist in [docs/SMOKE.md](docs/SMOKE.md). The preview harness cannot exercise Office.js, so this is where the add-in is really validated.
 
 1. Validate the manifest: `npm run validate:manifest`.
 2. Sideload `manifest.xml` (now pointing at the live `word.hakichain.com`):

@@ -1,0 +1,33 @@
+# Local / self-host stack for the hosted Word add-in.
+# Pane image gets ONLY the public Supabase URL + anon key.
+# Never pass SUPABASE_SERVICE_ROLE_KEY as a Vite build arg.
+
+services:
+  api:
+    build:
+      context: ./backend
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      REQUIRE_SUPABASE: "true"
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+      COURTLISTENER_API_TOKEN: ${COURTLISTENER_API_TOKEN:-}
+      CORS_ORIGINS: https://localhost:3000,https://word.hakichain.com
+    ports:
+      - "8000:8000"
+
+  pane:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api

@@ -264,6 +264,73 @@ def draft_generate_prompt(
     return system, user
 
 
+def reconcile_prompt(clause_text: str, destination_text: str) -> tuple[str, str]:
+    system = (
+        f"{GROUNDING} Adapt the borrowed clause's defined terms and cross-references to fit the destination document. "
+        f"Only change terms/references, not substance. {JSON_ONLY} "
+        'Schema: {"reconciledText": string, "changes": [{"from": string, "to": string, "note": string}]}.'
+    )
+    return system, f"Borrowed clause:\n{clause_text}\n\nDestination document:\n{destination_text[:150_000]}"
+
+
+def redact_prompt(document_text: str) -> tuple[str, str]:
+    system = (
+        f"{GROUNDING} Detect person, organization, and location entities in the text for redaction. "
+        f'Each "text" MUST be an exact verbatim substring of the document. {JSON_ONLY} '
+        'Schema: {"entities": [{"category": "person"|"organization"|"location", "text": string}]}.'
+    )
+    return system, document_text[:200_000]
+
+
+def extract_clause_prompt(clause: str, source_text: str) -> tuple[str, str]:
+    system = (
+        f"{GROUNDING} Find the requested clause in the source contract. \"text\" MUST be copied VERBATIM. "
+        f"If the clause is not present, set found=false and text=\"\". {JSON_ONLY} "
+        'Schema: {"found": boolean, "label": string, "text": string}.'
+    )
+    return system, f"Clause to find: {clause}\n\nSource contract:\n{source_text[:200_000]}"
+
+
+def fill_prompt(placeholders: list[str], reference_text: str) -> tuple[str, str]:
+    listed = "\n".join(f"{i + 1}. {p}" for i, p in enumerate(placeholders))
+    system = (
+        f"{GROUNDING} For each placeholder, find its value in the reference document. "
+        f"Every value MUST be backed by a verbatim quote. {JSON_ONLY} "
+        'Schema: {"fills": [{"placeholder": string, "found": boolean, "value": string, "quote": string}]}.'
+    )
+    return system, f"Placeholders:\n{listed}\n\nReference:\n{reference_text[:200_000]}"
+
+
+def edit_document_prompt(
+    document_text: str,
+    instruction: str,
+    contract_type: str | None,
+    prior_instructions: list[str],
+    prior_edits: list[dict[str, str]],
+) -> tuple[str, str]:
+    ctx = f" This is a {contract_type}." if contract_type else ""
+    prior_block = ""
+    if prior_instructions or prior_edits:
+        lines = [
+            f'{i + 1}. {e.get("label", "")}: "{e.get("currentLanguage", "")}" -> "{e.get("proposedLanguage", "")}"'
+            for i, e in enumerate(prior_edits)
+        ]
+        prior_block = (
+            "\n\nThis refines the edits already on screen rather than starting over. "
+            f"Prior instructions: {' | '.join(prior_instructions) or '(none)'}. Existing edits:\n"
+            + "\n".join(lines)
+        )
+    system = (
+        f"{GROUNDING} Apply the lawyer's instruction to the open document as a set of grounded redline edits.{ctx} "
+        f"currentLanguage MUST be copied VERBATIM. {JSON_ONLY} "
+        'Schema: {"overview": string, "edits": [{"label": string, "sectionReference": string|null, '
+        '"currentLanguage": string, "proposedLanguage": string, "rationale": string, '
+        '"fallbackPosition": string|null, "grounding": "verified"|"unverified"|"insertion", '
+        '"nature": "substantive"|"housekeeping"}], "summary": string}.'
+    )
+    return system, f"Instruction: {instruction}{prior_block}\n\nDocument:\n{document_text[:200_000]}"
+
+
 def playbook_block(positions: dict[str, Any]) -> str:
     if not positions:
         return ""

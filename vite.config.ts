@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { existsSync, readFileSync } from "node:fs";
@@ -39,6 +40,11 @@ export default defineConfig({
   },
   resolve: {
     alias: { "@": resolve(__dirname, "src") },
+  },
+  test: {
+    environment: "node",
+    include: ["src/**/*.test.ts"],
+    exclude: ["src/ai/test.ts"],
   },
   server: {
     port: 3000,

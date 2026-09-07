@@ -5,6 +5,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response
 
 from app.core.errors import ApiError
 from app.core.security import CurrentUser, get_current_user
@@ -15,6 +16,7 @@ from app.models.schemas import (
     ClauseFixRequest,
     ComplianceRequest,
     ContractReviewRequest,
+    CorrectedContractRequest,
     GuidelinesRequest,
     ImprovePromptRequest,
     NdaTriageRequest,
@@ -23,6 +25,7 @@ from app.models.schemas import (
     RiskRequest,
 )
 from app.services import prompts
+from app.services.docx_export import corrected_docx_bytes
 from app.services.grounding import compute_approval_gate, normalize_redline, shape_review
 from app.services.llm import complete_json
 from app.services.sse import format_named, format_typed, sse_response
@@ -216,11 +219,23 @@ async def guidelines_check(body: GuidelinesRequest, _user: CurrentUser = Depends
 
 
 @router.post("/legal-tools/export-corrected")
-async def export_corrected(_user: CurrentUser = Depends(get_current_user)) -> None:
-    raise ApiError(
-        404,
-        "Server-authored tracked-changes export is not available in this build. Apply redlines in the pane instead.",
-        "not_found",
+async def export_corrected(
+    body: CorrectedContractRequest,
+    _user: CurrentUser = Depends(get_current_user),
+) -> Response:
+    _cap(body.document_text)
+    redlines = [
+        {
+            "currentLanguage": r.current_language,
+            "replacementLanguage": r.replacement_language,
+        }
+        for r in body.accepted_redlines
+    ]
+    data = corrected_docx_bytes(body.document_text, redlines, body.tracked_changes)
+    return Response(
+        content=data,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": 'attachment; filename="corrected.docx"'},
     )
 
 

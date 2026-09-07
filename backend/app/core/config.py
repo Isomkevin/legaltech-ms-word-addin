@@ -14,9 +14,12 @@ class Settings(BaseSettings):
     openai_base_url: str = "https://api.openai.com/v1"
     llm_model: str = "gpt-4o-mini"
 
-    cors_origins: str = (
-        "https://localhost:3000,https://word.hakichain.ai,https://word.hakichain.com"
-    )
+    courtlistener_api_token: str = ""
+
+    # Set true in production so missing Supabase credentials fail on boot.
+    require_supabase: bool = False
+
+    cors_origins: str = "https://localhost:3000,https://word.hakichain.com"
     host: str = "0.0.0.0"
     port: int = 8000
 

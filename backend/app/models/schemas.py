@@ -355,3 +355,87 @@ class ImportDraftRequest(SnakeModel):
     content: dict[str, Any] | None = None
     matter_id: str | None = None
     redlines: list[dict[str, Any]] | None = None
+
+
+class PromptIn(CamelModel):
+    title: str
+    body: str
+    scope: Literal["private", "org"] = "private"
+
+
+class PromptPatch(CamelModel):
+    title: str | None = None
+    body: str | None = None
+    scope: Literal["private", "org"] | None = None
+
+
+class PromptOut(CamelModel):
+    id: str
+    user_id: str
+    organization_id: str | None = None
+    title: str
+    body: str
+    scope: str
+    created_at: str
+    updated_at: str
+    is_owner: bool = False
+
+
+class PromptList(CamelModel):
+    prompts: list[PromptOut]
+
+
+class ClauseCreate(SnakeModel):
+    name: str
+    clause_type: str | None = None
+    clauseType: str | None = None
+    content: str
+    jurisdiction: str = "US"
+    tone: str = "balanced"
+    tags: list[str] = Field(default_factory=list)
+
+
+class ClauseOut(CamelModel):
+    id: str
+    name: str
+    clause_type: str
+    content: str
+    jurisdiction: str
+    tone: str
+    applicable_acts: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    applicable_categories: list[str] | None = None
+    source: str = "user"
+    is_system: bool = False
+    created_at: str | None = None
+
+
+class EditDocumentRequest(CamelModel):
+    document_text: str
+    instruction: str
+    contract_type: str | None = None
+    prior_instructions: list[str] | None = None
+    prior_edits: list[dict[str, Any]] | None = None
+
+
+class ReconcileRequest(CamelModel):
+    clause_text: str
+    destination_text: str
+
+
+class DetectEntitiesRequest(CamelModel):
+    document_text: str
+
+
+class AcceptedRedlineIn(CamelModel):
+    clause_name: str = ""
+    current_language: str = ""
+    replacement_language: str = ""
+    comment: str | None = None
+
+
+class CorrectedContractRequest(CamelModel):
+    document_text: str
+    accepted_redlines: list[AcceptedRedlineIn] = Field(default_factory=list)
+    contract_type: str = ""
+    tracked_changes: bool = True

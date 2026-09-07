@@ -79,7 +79,7 @@ export function friendlyMessage(err: ApiError): string {
     case "too_large":
       return "This document is too large to review in full. Try selecting the section you want reviewed.";
     case "not_found":
-      return "You do not have access to that matter, or it no longer exists.";
+      return notFoundMessage(err);
     case "rate_limited":
       return "Too many requests right now. Please wait a moment and try again.";
     case "network":
@@ -99,4 +99,21 @@ export function friendlyMessage(err: ApiError): string {
  */
 export function errorMessage(e: unknown): string {
   return e instanceof ApiError ? friendlyMessage(e) : (e as Error).message;
+}
+
+const MATTER_CODES = new Set(["matter_not_found", "matter_access", "no_matter_access", "client_not_found"]);
+
+/** Matter-access copy only when the backend says so; otherwise keep the server message. */
+export function notFoundMessage(err: ApiError): string {
+  const code = (err.code || "").toLowerCase();
+  const message = (err.message || "").toLowerCase();
+  const matterShaped =
+    MATTER_CODES.has(code) ||
+    (message.includes("matter") && (message.includes("access") || message.includes("exist")));
+  if (matterShaped) {
+    return "You do not have access to that matter, or it no longer exists.";
+  }
+  return err.message && err.message !== `Request failed (${err.status})`
+    ? err.message
+    : "That resource was not found.";
 }

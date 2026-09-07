@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Badge, Banner, Button, Field, SegmentedControl, Spinner, IconButton } from "@/ui/primitives";
 import { CheckIcon, CopyIcon, ArrowLeftIcon } from "@/ui/icons";
 import { errorMessage } from "@/api/errors";
+import { isCommunity } from "@/community/edition";
 import { insertPassageAtCursor } from "@/office/richInsert";
 import { insertCitationFootnote } from "@/office/citations";
 import { CaseBrief } from "./CaseBrief";
@@ -185,8 +186,9 @@ function StatuteSearch({
 
       {state.status === "done" && state.results.length === 0 && (
         <Banner tone="info">
-          No sections matched. Try fewer or different words, or a specific citation like "42 USC
-          1983".
+          {isCommunity()
+            ? "No sections matched. Try fewer or different words, or a specific citation like \"42 USC 1983\"."
+            : "Statute research is not available on this server yet. Case citations can still be checked under Citations."}
         </Banner>
       )}
 

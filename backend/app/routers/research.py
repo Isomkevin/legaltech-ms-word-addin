@@ -4,12 +4,13 @@ Citation-style (Bluebook format) is a real LLM check and lives here because
 the add-in calls POST /api/v1/us/citation-style.
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.core.errors import ApiError
 from app.core.security import CurrentUser, get_current_user
 from app.models.schemas import CitationStyleRequest
 from app.services import prompts
+from app.services.courtlistener import lookup_citation
 from app.services.llm import complete_json
 
 router = APIRouter(tags=["research"])
@@ -25,8 +26,11 @@ async def citation_style(
 
 
 @router.get("/us/citation-lookup")
-async def citation_lookup(_user: CurrentUser = Depends(get_current_user)) -> list:
-    return []
+async def citation_lookup(
+    citation: str = Query(""),
+    _user: CurrentUser = Depends(get_current_user),
+) -> list:
+    return await lookup_citation(citation.strip())
 
 
 @router.get("/us/case/{cluster_id}/citations")

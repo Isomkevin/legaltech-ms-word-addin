@@ -10,6 +10,8 @@ os.environ["SUPABASE_URL"] = ""
 os.environ["SUPABASE_SERVICE_ROLE_KEY"] = ""
 os.environ["CORS_ORIGINS"] = "https://localhost:3000"
 os.environ["OPENAI_API_KEY"] = ""
+os.environ["REQUIRE_SUPABASE"] = "false"
+os.environ["COURTLISTENER_API_TOKEN"] = ""
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -54,16 +56,22 @@ def make_token(
 
 @pytest.fixture(autouse=True)
 def _isolated_state():
+    os.environ["COURTLISTENER_API_TOKEN"] = ""
+    os.environ["REQUIRE_SUPABASE"] = "false"
+    get_settings.cache_clear()
     reset_store(MemoryStore())
     set_llm_overrides()
     yield
     set_llm_overrides()
     reset_store(MemoryStore())
+    os.environ["COURTLISTENER_API_TOKEN"] = ""
+    get_settings.cache_clear()
 
 
 @pytest.fixture
-def client() -> TestClient:
-    return TestClient(app)
+def client():
+    with TestClient(app) as test_client:
+        yield test_client
 
 
 @pytest.fixture
